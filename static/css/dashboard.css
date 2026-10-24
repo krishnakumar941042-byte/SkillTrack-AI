@@ -1282,3 +1282,58 @@ body.sidebar-collapsed .sidebar-toggle {
         flex-direction: column;
     }
 }
+
+
+/* ===== Practice Lab Styles ===== */
+.practice-api-panel {
+    margin-top: 24px;
+    padding: 22px;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    background: #111827;
+    color: #e5e7eb;
+}
+
+.practice-api-panel select,
+.practice-api-panel input {
+    padding: 10px;
+    margin: 8px 6px 8px 0;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    background: #1e293b;
+    color: #f8fafc;
+    max-width: 100%;
+}
+
+.practice-api-panel button {
+    padding: 9px 13px;
+    margin: 6px 6px 6px 0;
+    border: 0;
+    border-radius: 8px;
+    background: #06b6d4;
+    color: #082f49;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.practice-api-panel button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.practice-question {
+    margin: 16px 0;
+    padding: 16px;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    background: #1e293b;
+}
+
+.practice-question h3 {
+    margin-top: 0;
+}
+
+.practice-question p {
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
