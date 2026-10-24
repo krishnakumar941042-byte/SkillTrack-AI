@@ -77,3 +77,162 @@ if (sidebarToggle) {
         );
     });
 }
+
+
+/* SkillTrack AI - Learning Management */
+
+const learningSection = document.getElementById("learning");
+
+if (learningSection) {
+    const panel = document.createElement("div");
+    panel.className = "learning-api-panel";
+    panel.innerHTML = `
+        <h2>My Learning</h2>
+        <p class="learning-status">Loading your courses...</p>
+        <div class="learning-resume"></div>
+        <div class="learning-courses"></div>
+        <div class="learning-details"></div>
+    `;
+    learningSection.prepend(panel);
+
+    const status = panel.querySelector(".learning-status");
+    const coursesBox = panel.querySelector(".learning-courses");
+    const detailsBox = panel.querySelector(".learning-details");
+    const resumeBox = panel.querySelector(".learning-resume");
+
+    const safe = value => String(value ?? "").replace(
+        /[&<>"']/g,
+        char => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;",
+            '"': "&quot;", "'": "&#39;"
+        })[char]
+    );
+
+    async function loadCourses() {
+        try {
+            const response = await fetch("/api/courses/");
+            if (!response.ok) throw new Error("Could not load courses");
+
+            const data = await response.json();
+            status.textContent = `${data.courses.length} courses available`;
+
+            coursesBox.innerHTML = data.courses.map(course => {
+                const progress = course.total_lessons
+                    ? Math.round(course.completed_lessons * 100 / course.total_lessons)
+                    : 0;
+
+                return `
+                    <article class="learning-course">
+                        <h3>${safe(course.title)}</h3>
+                        <p>${safe(course.description)}</p>
+                        <p>${safe(course.instructor)} · ${course.duration_hours} hours</p>
+                        <p>${course.completed_lessons}/${course.total_lessons} lessons · ${progress}%</p>
+                        <div class="learning-progress">
+                            <div style="width:${progress}%"></div>
+                        </div>
+                        <button type="button" data-course="${course.id}">
+                            View lessons
+                        </button>
+                    </article>
+                `;
+            }).join("") || "<p>No courses available yet.</p>";
+
+            coursesBox.querySelectorAll("[data-course]").forEach(button => {
+                button.addEventListener("click", () => {
+                    loadCourse(button.dataset.course);
+                });
+            });
+
+            await loadResume();
+        } catch (error) {
+            status.textContent = "Could not load courses. Check that Django is running.";
+        }
+    }
+
+    async function loadCourse(courseId) {
+        try {
+            const response = await fetch(`/api/courses/${courseId}/`);
+            if (!response.ok) throw new Error("Course unavailable");
+
+            const course = await response.json();
+
+            detailsBox.innerHTML = `
+                <h3>${safe(course.title)} — Lessons</h3>
+                <p>Progress: ${course.progress}%</p>
+                <div class="learning-progress">
+                    <div style="width:${course.progress}%"></div>
+                </div>
+                ${course.lessons.map(lesson => `
+                    <article class="learning-lesson">
+                        <div>
+                            <strong>${safe(lesson.order)}. ${safe(lesson.title)}</strong>
+                            <p>${safe(lesson.content)}</p>
+                            <small>${lesson.duration_minutes} minutes</small>
+                        </div>
+                        <button type="button"
+                            data-lesson="${lesson.id}"
+                            data-completed="${!lesson.is_completed}">
+                            ${lesson.is_completed ? "Mark incomplete" : "Complete lesson"}
+                        </button>
+                    </article>
+                `).join("") || "<p>No lessons added yet.</p>"}
+            `;
+
+            detailsBox.querySelectorAll("[data-lesson]").forEach(button => {
+                button.addEventListener("click", async () => {
+                    const completed = button.dataset.completed === "true";
+
+                    const result = await fetch(
+                        `/api/lessons/${button.dataset.lesson}/complete/`,
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ is_completed: completed })
+                        }
+                    );
+
+                    if (!result.ok) {
+                        alert("Could not update lesson progress.");
+                        return;
+                    }
+
+                    await loadCourse(courseId);
+                    await loadCourses();
+                });
+            });
+        } catch (error) {
+            detailsBox.textContent = "Could not load course details.";
+        }
+    }
+
+    async function loadResume() {
+        try {
+            const response = await fetch("/api/resume/");
+            if (!response.ok) throw new Error();
+
+            const data = await response.json();
+
+            if (!data.lesson) {
+                resumeBox.textContent = data.message;
+                return;
+            }
+
+            resumeBox.innerHTML = `
+                <h3>Resume Learning</h3>
+                <p>${safe(data.course_title)} — ${safe(data.lesson.title)}</p>
+                <button type="button" id="resume-course">
+                    Continue learning
+                </button>
+            `;
+
+            resumeBox.querySelector("#resume-course").addEventListener(
+                "click",
+                () => loadCourse(data.course_id)
+            );
+        } catch (error) {
+            resumeBox.textContent = "Resume Learning is temporarily unavailable.";
+        }
+    }
+
+    loadCourses();
+}

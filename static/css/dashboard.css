@@ -1214,3 +1214,71 @@ body.sidebar-collapsed .sidebar-toggle {
         left: auto;
     }
 }
+
+.learning-api-panel {
+    margin: 24px 0;
+    color: inherit;
+}
+
+.learning-courses {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 18px;
+}
+
+.learning-course,
+.learning-lesson,
+.learning-resume {
+    padding: 18px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(100, 150, 200, .3);
+    border-radius: 14px;
+    background: rgba(100, 150, 200, .06);
+}
+
+.learning-course h3,
+.learning-lesson strong {
+    margin-top: 0;
+}
+
+.learning-course button,
+.learning-lesson button,
+.learning-resume button {
+    padding: 9px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: #00cfe8;
+    color: #071629;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.learning-progress {
+    height: 8px;
+    margin: 10px 0 14px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: rgba(130, 150, 180, .2);
+}
+
+.learning-progress div {
+    height: 100%;
+    border-radius: inherit;
+    background: #00cfe8;
+    transition: width .25s ease;
+}
+
+.learning-lesson {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+}
+
+@media (max-width: 600px) {
+    .learning-lesson {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
