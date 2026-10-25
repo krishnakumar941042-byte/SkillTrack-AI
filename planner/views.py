@@ -1,5 +1,7 @@
 from django.shortcuts import render
-
+from django.db import transaction
+from django.shortcuts import get_object_or_404
+from .models import PlayerProfile, XPTransaction
 import json
 
 from django.http import JsonResponse
@@ -92,10 +94,47 @@ def task_detail_api(request, task_id):
                 )
             task.priority = data["priority"]
 
+        
+        
+        xp_earned = 0
+
         if "is_completed" in data:
-            task.is_completed = data["is_completed"]
+            was_completed = task.is_completed
+            new_completed = data["is_completed"]
+
+            if not isinstance(new_completed, bool):
+                return JsonResponse(
+                    {"error": "is_completed must be true or false"},
+                    status=400,
+                )
+
+            task.is_completed = new_completed
+
+            if (
+                new_completed
+                and not was_completed
+                and not task.xp_awarded
+            ):
+                profile, _ = PlayerProfile.objects.get_or_create(id=1)
+
+                result = award_xp(
+                    profile_id=profile.id,
+                    amount=20,
+                    reason=f"Completed task: {task.title}",
+                    source_type="study_task",
+                    source_id=task.id,
+                )
+
+                task.xp_awarded = True
+                xp_earned = result["earned_xp"]
+
         task.save()
-        return JsonResponse({"message": "Task updated"})
+
+        return JsonResponse({
+            "message": "Task updated",
+            "xp_earned": xp_earned,
+        })
+
     except (ValueError, TypeError):
         return JsonResponse({"error": "Invalid data"}, status=400)
 
@@ -176,3 +215,46 @@ def study_goal_progress_api(request):
         })
 
     return JsonResponse({"goals": results})
+
+
+@transaction.atomic
+def award_xp(profile_id, amount, reason, source_type="", source_id=None):
+    if amount <= 0:
+        raise ValueError("XP amount must be greater than zero.")
+
+    profile = get_object_or_404(
+        PlayerProfile.objects.select_for_update(),
+        id=profile_id,
+    )
+
+    profile.total_xp += amount
+    profile.level = (profile.total_xp // 100) + 1
+    profile.save(update_fields=["total_xp", "level"])
+
+    reward = XPTransaction.objects.create(
+        profile=profile,
+        amount=amount,
+        reason=reason,
+        source_type=source_type,
+        source_id=source_id,
+    )
+
+    return {
+        "profile_id": profile.id,
+        "earned_xp": reward.amount,
+        "total_xp": profile.total_xp,
+        "level": profile.level,
+        "reason": reward.reason,
+    }
+
+@require_http_methods(["GET"])
+def xp_profile_api(request):
+    # Temporary single-player profile for the current project.
+    profile, created = PlayerProfile.objects.get_or_create(id=1)
+
+    return JsonResponse({
+        "profile_id": profile.id,
+        "total_xp": profile.total_xp,
+        "level": profile.level,
+        "xp_for_next_level": (profile.level * 100) - profile.total_xp,
+    })
