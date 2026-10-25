@@ -11,8 +11,8 @@
 
 <body>
     <div class="app-container">
-        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar"
-            aria-expanded="true"exit()>
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar" aria-expanded="true"
+            exit()>
             ⋮
         </button>
 
@@ -197,6 +197,40 @@
                     <p>Plan your study sessions and build a daily learning habit.</p>
                 </div>
             </section>
+
+            <section id="study-timer">
+                <h2>Study Timer</h2>
+
+                <label for="timer-subject">Subject</label>
+                <input id="timer-subject" type="text" placeholder="e.g. Python">
+
+                <label for="timer-minutes">Duration (minutes)</label>
+                <input id="timer-minutes" type="number" min="1" value="25">
+
+                <h3 id="timer-display">25:00</h3>
+
+                <button id="timer-start" type="button">Start</button>
+                <button id="timer-pause" type="button">Pause</button>
+                <button id="timer-reset" type="button">Reset</button>
+
+                <p id="timer-message"></p>
+            </section>
+
+
+            <section id="study-history">
+                <h2>Study Session History</h2>
+                <p id="history-message">Loading study sessions...</p>
+                <div id="history-list"></div>
+            </section>
+
+
+            <section id="goal-progress">
+                <h2>Planned vs Actual Study Time</h2>
+                <p id="goal-progress-message">Loading goal progress...</p>
+                <div id="goal-progress-list"></div>
+            </section>
+
+
 
             <section class="stat-card">
                 <div class="stat-top">

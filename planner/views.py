@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from .models import StudyTask, StudySession
+from .models import StudyTask, StudySession, StudyGoal
 
 
 @csrf_exempt
@@ -16,7 +16,7 @@ def tasks_api(request):
         tasks = list(
             StudyTask.objects.values(
                 "id", "title", "description",
-                "due_date", "is_completed"
+                "due_date", "priority", "is_completed"
             )
         )
         return JsonResponse({"tasks": tasks})
@@ -27,6 +27,7 @@ def tasks_api(request):
             title=data["title"],
             description=data.get("description", ""),
             due_date=data.get("due_date") or None,
+            priority=data.get("priority", "medium"),
         )
         return JsonResponse({"id": task.id, "title": task.title}, status=201)
     except (ValueError, KeyError, TypeError):
@@ -76,11 +77,102 @@ def task_detail_api(request, task_id):
         data = json.loads(request.body)
         if "title" in data:
             task.title = data["title"]
+
         if "description" in data:
             task.description = data["description"]
+
+        if "due_date" in data:
+            task.due_date = data["due_date"] or None
+
+        if "priority" in data:
+            if data["priority"] not in ("low", "medium", "high"):
+                return JsonResponse(
+                    {"error": "Priority must be low, medium, or high"},
+                    status=400,
+                )
+            task.priority = data["priority"]
+
         if "is_completed" in data:
-            task.is_completed = bool(data["is_completed"])
+            task.is_completed = data["is_completed"]
         task.save()
         return JsonResponse({"message": "Task updated"})
     except (ValueError, TypeError):
         return JsonResponse({"error": "Invalid data"}, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def save_timer_session(request):
+    try:
+        data = json.loads(request.body)
+
+        subject = data.get("subject", "").strip()
+        duration = int(data.get("duration_minutes", 0))
+
+        if not subject:
+            return JsonResponse(
+                {"error": "Subject is required"},
+                status=400,
+            )
+
+        if duration <= 0:
+            return JsonResponse(
+                {"error": "Duration must be greater than zero"},
+                status=400,
+            )
+
+        session = StudySession.objects.create(
+            subject=subject,
+            duration_minutes=duration,
+            notes=data.get("notes", ""),
+        )
+
+        return JsonResponse({
+            "message": "Study session saved",
+            "id": session.id,
+            "subject": session.subject,
+            "duration_minutes": session.duration_minutes,
+            "session_date": session.session_date.isoformat(),
+        }, status=201)
+
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return JsonResponse(
+            {"error": "Invalid session data"},
+            status=400,
+        )
+
+
+@require_http_methods(["GET"])
+def study_goal_progress_api(request):
+    from datetime import date, timedelta
+    from django.db.models import Sum
+
+    today = date.today()
+    goals = StudyGoal.objects.all().order_by("start_date")
+    results = []
+
+    for goal in goals:
+        actual_minutes = StudySession.objects.filter(
+            session_date__gte=goal.start_date,
+            session_date__lte=min(goal.end_date, today),
+        ).aggregate(total=Sum("duration_minutes"))["total"] or 0
+
+        target_minutes = goal.target_minutes
+        percentage = (
+            min(round(actual_minutes / target_minutes * 100), 100)
+            if target_minutes > 0
+            else 0
+        )
+
+        results.append({
+            "id": goal.id,
+            "title": goal.title,
+            "goal_type": goal.goal_type,
+            "start_date": goal.start_date.isoformat(),
+            "end_date": goal.end_date.isoformat(),
+            "target_minutes": target_minutes,
+            "actual_minutes": actual_minutes,
+            "remaining_minutes": max(target_minutes - actual_minutes, 0),
+            "progress_percent": percentage,
+        })
+
+    return JsonResponse({"goals": results})

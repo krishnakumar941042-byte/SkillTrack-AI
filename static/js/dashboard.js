@@ -452,3 +452,238 @@ document.addEventListener("DOMContentLoaded", () => {
     loadStats();
     loadHistory();
 });
+
+
+(() => {
+    const display = document.getElementById("timer-display");
+    const subjectInput = document.getElementById("timer-subject");
+    const minutesInput = document.getElementById("timer-minutes");
+    const startButton = document.getElementById("timer-start");
+    const pauseButton = document.getElementById("timer-pause");
+    const resetButton = document.getElementById("timer-reset");
+    const message = document.getElementById("timer-message");
+
+    if (!display || !subjectInput || !minutesInput ||
+        !startButton || !pauseButton || !resetButton || !message) {
+        return;
+    }
+
+    let remaining = 25 * 60;
+    let interval = null;
+    let running = false;
+    let sessionSaved = false;
+
+    function renderTime() {
+        const mins = Math.floor(remaining / 60);
+        const secs = remaining % 60;
+        display.textContent =
+            `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+
+    function resetTimer() {
+        clearInterval(interval);
+        interval = null;
+        running = false;
+        sessionSaved = false;
+
+        const minutes = Number(minutesInput.value);
+        remaining = Number.isInteger(minutes) && minutes > 0
+            ? minutes * 60
+            : 25 * 60;
+
+        renderTime();
+        message.textContent = "";
+    }
+
+    minutesInput.addEventListener("change", resetTimer);
+
+    startButton.addEventListener("click", () => {
+        if (running || remaining <= 0) return;
+
+        if (!subjectInput.value.trim()) {
+            message.textContent = "Pehle subject enter karo.";
+            subjectInput.focus();
+            return;
+        }
+
+        running = true;
+        message.textContent = "Study session chal raha hai...";
+
+        interval = setInterval(async () => {
+            remaining--;
+            renderTime();
+
+            if (remaining <= 0) {
+                clearInterval(interval);
+                interval = null;
+                running = false;
+
+                if (sessionSaved) return;
+                sessionSaved = true;
+
+                message.textContent = "Timer complete! Session save ho raha hai...";
+
+                try {
+                    const response = await fetch("/api/timer/save/", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            subject: subjectInput.value.trim(),
+                            duration_minutes: Number(minutesInput.value),
+                            notes: "Completed using Study Timer"
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || "Session save failed");
+                    }
+
+                    message.textContent = "Timer complete! Study session saved.";
+                } catch (error) {
+                    message.textContent =
+                        "Timer complete, lekin save nahi hua: " + error.message;
+                }
+            }
+        }, 1000);
+    });
+
+    pauseButton.addEventListener("click", () => {
+        clearInterval(interval);
+        interval = null;
+        running = false;
+        message.textContent = "Timer paused.";
+    });
+
+    resetButton.addEventListener("click", resetTimer);
+
+    renderTime();
+})();
+
+
+(() => {
+    const historyList = document.getElementById("history-list");
+    const historyMessage = document.getElementById("history-message");
+
+    if (!historyList || !historyMessage) return;
+
+    async function loadStudyHistory() {
+        historyMessage.textContent = "Loading study sessions...";
+        historyList.replaceChildren();
+
+        try {
+            const response = await fetch("/api/study-sessions/");
+            if (!response.ok) throw new Error("Could not load history");
+
+            const data = await response.json();
+            const sessions = data.sessions || [];
+
+            if (sessions.length === 0) {
+                historyMessage.textContent = "Abhi koi study session nahi hai.";
+                return;
+            }
+
+            historyMessage.textContent =
+                `${sessions.length} study session${sessions.length === 1 ? "" : "s"} found`;
+
+            sessions.slice().reverse().forEach((session) => {
+                const card = document.createElement("article");
+                card.className = "history-card";
+
+                const details = document.createElement("div");
+                details.className = "history-details";
+
+                const subject = document.createElement("h3");
+                subject.textContent = session.subject;
+
+                const date = document.createElement("p");
+                date.textContent = `Date: ${session.session_date}`;
+
+                const notes = document.createElement("p");
+                notes.textContent = session.notes || "No notes";
+
+                const duration = document.createElement("span");
+                duration.className = "history-duration";
+                duration.textContent = `${session.duration_minutes} min`;
+
+                details.append(subject, date, notes);
+                card.append(details, duration);
+                historyList.appendChild(card);
+            });
+        } catch (error) {
+            historyMessage.textContent =
+                "History load nahi hui. Server aur API check karo.";
+        }
+    }
+
+    loadStudyHistory();
+})();
+
+
+async function loadGoalProgress() {
+    const message = document.getElementById("goal-progress-message");
+    const list = document.getElementById("goal-progress-list");
+
+    try {
+        const response = await fetch("/api/study-goals/progress/");
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Unable to load goal progress");
+        }
+
+        list.replaceChildren();
+
+        if (!data.goals || data.goals.length === 0) {
+            message.textContent = "No study goals found. Add a goal to track your progress.";
+            return;
+        }
+
+        message.textContent = "Your planned vs actual study time";
+
+        data.goals.forEach((goal) => {
+            const card = document.createElement("div");
+            card.className = "goal-progress-card";
+
+            const title = document.createElement("h3");
+            title.textContent = goal.title;
+
+            const type = document.createElement("p");
+            type.textContent = "Goal type: " + goal.goal_type;
+
+            const dates = document.createElement("p");
+            dates.textContent = goal.start_date + " to " + goal.end_date;
+
+            const time = document.createElement("p");
+            time.textContent =
+                "Planned: " + goal.target_minutes + " min | Actual: " +
+                goal.actual_minutes + " min";
+
+            const remaining = document.createElement("p");
+            remaining.textContent =
+                "Remaining: " + goal.remaining_minutes + " min";
+
+            const progress = document.createElement("p");
+            progress.textContent = "Progress: " + goal.progress_percent + "%";
+
+            const bar = document.createElement("div");
+            bar.className = "goal-progress-bar";
+
+            const fill = document.createElement("div");
+            fill.className = "goal-progress-fill";
+            fill.style.width = goal.progress_percent + "%";
+
+            bar.appendChild(fill);
+            card.append(title, type, dates, time, remaining, progress, bar);
+            list.appendChild(card);
+        });
+    } catch (error) {
+        message.textContent = "Could not load goal progress. Check the API and try again.";
+        console.error("Goal progress error:", error);
+    }
+}
+
+loadGoalProgress();
