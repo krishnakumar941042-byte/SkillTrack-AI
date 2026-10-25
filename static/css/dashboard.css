@@ -1645,3 +1645,209 @@ body.sidebar-collapsed .sidebar-toggle {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* ===== Study Tasks ===== */
+#study-tasks-card {
+    margin-bottom: 28px;
+    padding: 24px;
+}
+
+#study-task-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+    margin-bottom: 20px;
+}
+
+#study-task-form label {
+    align-self: end;
+    font-weight: 600;
+    color: var(--text-color, #333);
+}
+
+#study-task-form input,
+#study-task-form textarea,
+#study-task-form select {
+    width: 100%;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid #d8dce5;
+    border-radius: 10px;
+    background: #fff;
+    color: #222;
+    font: inherit;
+    box-sizing: border-box;
+}
+
+#study-task-form textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+#study-task-form button {
+    justify-self: start;
+    padding: 11px 22px;
+    border: none;
+    border-radius: 10px;
+    background: #6558d3;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#study-task-form button:hover {
+    filter: brightness(1.08);
+}
+
+#study-task-form button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+#task-message {
+    margin: 12px 0;
+    font-size: 14px;
+}
+
+#study-task-list {
+    display: grid;
+    gap: 12px;
+}
+
+.study-task-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid #e2e5ed;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.study-task-item .task-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.study-task-item .task-title {
+    margin: 0 0 5px;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.study-task-item .task-description {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.study-task-item .task-priority {
+    font-size: 12px;
+    text-transform: capitalize;
+    color: #6558d3;
+}
+
+.study-task-item.is-completed .task-title {
+    text-decoration: line-through;
+    opacity: 0.65;
+}
+
+.study-task-item input[type="checkbox"] {
+    width: 19px;
+    height: 19px;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    #study-tasks-card {
+        padding: 16px;
+    }
+
+    #study-task-form {
+        grid-template-columns: 1fr;
+    }
+
+    .study-task-item {
+        align-items: flex-start;
+        padding: 12px;
+    }
+}
+/* ===== XP Progress Card ===== */
+.xp-card {
+    margin: 20px 0 28px;
+    padding: 24px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #29265f, #6558d3);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(41, 38, 95, 0.18);
+}
+
+.xp-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.xp-card-header h2 {
+    margin: 0 0 6px;
+    font-size: 22px;
+}
+
+.xp-card-header p {
+    margin: 0;
+    color: #e4e1ff;
+}
+
+.xp-level {
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.16);
+    font-weight: 700;
+}
+
+.xp-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 24px 0 12px;
+}
+
+.xp-total strong {
+    font-size: 28px;
+}
+
+.xp-progress-track {
+    width: 100%;
+    height: 12px;
+    overflow: hidden;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.xp-progress-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: #ffd166;
+    transition: width 0.4s ease;
+}
+
+.xp-next-level {
+    margin: 12px 0 0;
+    color: #e4e1ff;
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    .xp-card {
+        padding: 18px;
+    }
+
+    .xp-card-header h2 {
+        font-size: 19px;
+    }
+}

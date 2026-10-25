@@ -687,3 +687,197 @@ async function loadGoalProgress() {
 }
 
 loadGoalProgress();
+
+
+/* ===== SkillTrack AI - Study Tasks and XP ===== */
+(() => {
+    const form = document.getElementById("study-task-form");
+    const list = document.getElementById("study-task-list");
+    const message = document.getElementById("task-message");
+
+    if (!form || !list || !message) return;
+
+    const titleInput = document.getElementById("task-title");
+    const descriptionInput = document.getElementById("task-description");
+    const priorityInput = document.getElementById("task-priority");
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    async function apiRequest(url, options = {}) {
+        const headers = {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        };
+
+        const csrfToken = getCookie("csrftoken");
+        if (csrfToken) {
+            headers["X-CSRFToken"] = csrfToken;
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.error || `Request failed (${response.status})`);
+        }
+
+        return data;
+    }
+
+    async function loadXP() {
+        try {
+            const profile = await apiRequest("/api/xp/profile/");
+            const totalXP = document.getElementById("total-xp");
+            const level = document.getElementById("player-level");
+            const nextXP = document.getElementById("xp-for-next-level");
+
+            // Update the XP card only if these elements exist.
+            if (totalXP) totalXP.textContent = profile.total_xp;
+            if (level) level.textContent = profile.level;
+            if (nextXP) {
+                nextXP.textContent = profile.xp_for_next_level;
+            }
+
+            const progressBar = document.getElementById("xp-progress-fill");
+
+            if (progressBar) {
+                const xpInLevel = profile.total_xp % 100;
+                const progress = (xpInLevel / 100) * 100;
+
+                progressBar.style.width = `${progress}%`;
+            }
+            if (totalXP) totalXP.textContent = profile.total_xp;
+            if (level) level.textContent = profile.level;
+            if (nextXP) nextXP.textContent = profile.xp_for_next_level;
+        } catch (error) {
+            console.error("Could not load XP profile:", error);
+        }
+    }
+
+    function createTaskCard(task) {
+        const card = document.createElement("article");
+        card.className = "study-task-item";
+        if (task.is_completed) card.classList.add("is-completed");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = Boolean(task.is_completed);
+        checkbox.setAttribute(
+            "aria-label",
+            `Complete task: ${task.title}`
+        );
+
+        const details = document.createElement("div");
+        details.className = "task-details";
+
+        const title = document.createElement("h3");
+        title.className = "task-title";
+        title.textContent = task.title;
+
+        const description = document.createElement("p");
+        description.className = "task-description";
+        description.textContent = task.description || "No description";
+
+        const priority = document.createElement("p");
+        priority.className = "task-priority";
+        priority.textContent = `Priority: ${task.priority}`;
+
+        details.append(title, description, priority);
+        card.append(checkbox, details);
+
+        checkbox.addEventListener("change", async () => {
+            checkbox.disabled = true;
+            message.textContent = "Updating task...";
+
+            try {
+                const result = await apiRequest(
+                    `/api/tasks/${task.id}/`,
+                    {
+                        method: "PATCH",
+                        body: JSON.stringify({
+                            is_completed: checkbox.checked
+                        })
+                    }
+                );
+
+                message.textContent = result.xp_earned > 0
+                    ? `Task completed! You earned ${result.xp_earned} XP.`
+                    : checkbox.checked
+                        ? "Task completed. No additional XP earned."
+                        : "Task marked incomplete.";
+
+                await loadTasks();
+                await loadXP();
+            } catch (error) {
+                checkbox.checked = !checkbox.checked;
+                message.textContent = error.message;
+            } finally {
+                checkbox.disabled = false;
+            }
+        });
+
+        return card;
+    }
+
+    async function loadTasks() {
+        list.textContent = "Loading tasks...";
+
+        try {
+            const data = await apiRequest("/api/tasks/");
+            const tasks = data.tasks || [];
+
+            list.replaceChildren();
+
+            if (tasks.length === 0) {
+                list.textContent = "No tasks yet. Add your first study task!";
+                return;
+            }
+
+            tasks.forEach(task => {
+                list.appendChild(createTaskCard(task));
+            });
+        } catch (error) {
+            list.textContent = "Could not load tasks: " + error.message;
+        }
+    }
+
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const title = titleInput.value.trim();
+        if (!title) {
+            message.textContent = "Please enter a task title.";
+            return;
+        }
+
+        submitButton.disabled = true;
+        message.textContent = "Creating task...";
+
+        try {
+            await apiRequest("/api/tasks/", {
+                method: "POST",
+                body: JSON.stringify({
+                    title,
+                    description: descriptionInput.value.trim(),
+                    priority: priorityInput.value
+                })
+            });
+
+            form.reset();
+            priorityInput.value = "medium";
+            message.textContent = "Task created successfully!";
+
+            await loadTasks();
+        } catch (error) {
+            message.textContent = "Could not create task: " + error.message;
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
+
+    loadTasks();
+    loadXP();
+})();

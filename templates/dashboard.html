@@ -198,6 +198,62 @@
                 </div>
             </section>
 
+
+            <section class="section-heading" id="tasks">
+                <div>
+                    <h2>Study Tasks</h2>
+                    <p>Create tasks, complete them, and earn XP.</p>
+                </div>
+            </section>
+
+            <section class="xp-card">
+                <div class="xp-card-header">
+                    <div>
+                        <h2>🏆 Your Progress</h2>
+                        <p>Keep learning and earn XP!</p>
+                    </div>
+                    <div class="xp-level">
+                        Level <span id="player-level">1</span>
+                    </div>
+                </div>
+
+                <div class="xp-total">
+                    <span>Total XP</span>
+                    <strong id="total-xp">0</strong>
+                </div>
+
+                <div class="xp-progress-track">
+                    <div class="xp-progress-fill" id="xp-progress-fill"></div>
+                </div>
+
+                <p class="xp-next-level">
+                    <span id="xp-for-next-level">100</span> XP needed for next level
+                </p>
+            </section>
+
+            <section class="stat-card" id="study-tasks-card">
+                <form id="study-task-form">
+                    <label for="task-title">Task title</label>
+                    <input id="task-title" type="text" placeholder="e.g. Python Practice Test" required>
+
+                    <label for="task-description">Description</label>
+                    <textarea id="task-description" placeholder="Describe your study task"></textarea>
+
+                    <label for="task-priority">Priority</label>
+                    <select id="task-priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+
+                    <button type="submit">Add Task</button>
+                </form>
+
+                <p id="task-message" role="status"></p>
+                <div id="study-task-list">Loading tasks...</div>
+            </section>
+
+
             <section id="study-timer">
                 <h2>Study Timer</h2>
 
