@@ -3,7 +3,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from .models import PlayerProfile, XPTransaction
 import json
-
+from .models import Achievement, PlayerAchievement
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -127,8 +127,17 @@ def task_detail_api(request, task_id):
 
                 task.xp_awarded = True
                 xp_earned = result["earned_xp"]
+                level_up = result["level_up"]
 
-        task.save()
+                task.save()
+                unlocked_achievements = check_achievements(profile)
+
+                return JsonResponse({
+                "message": "Task updated",
+                "xp_earned": xp_earned,
+                "level_up": level_up,
+                "unlocked_achievements": unlocked_achievements,
+            })
 
         return JsonResponse({
             "message": "Task updated",
@@ -226,7 +235,7 @@ def award_xp(profile_id, amount, reason, source_type="", source_id=None):
         PlayerProfile.objects.select_for_update(),
         id=profile_id,
     )
-
+    old_level = profile.level
     profile.total_xp += amount
     profile.level = (profile.total_xp // 100) + 1
     profile.save(update_fields=["total_xp", "level"])
@@ -244,6 +253,7 @@ def award_xp(profile_id, amount, reason, source_type="", source_id=None):
         "earned_xp": reward.amount,
         "total_xp": profile.total_xp,
         "level": profile.level,
+        "level_up": profile.level > old_level,
         "reason": reward.reason,
     }
 
@@ -257,4 +267,58 @@ def xp_profile_api(request):
         "total_xp": profile.total_xp,
         "level": profile.level,
         "xp_for_next_level": (profile.level * 100) - profile.total_xp,
+    })
+
+def check_achievements(profile):
+    unlocked = []
+
+    completed_tasks = profile.__class__.objects.filter(
+        id=profile.id
+    ).exists()
+
+    achievements = Achievement.objects.all()
+
+    for achievement in achievements:
+        already_unlocked = PlayerAchievement.objects.filter(
+            profile=profile,
+            achievement=achievement,
+        ).exists()
+
+        if already_unlocked:
+            continue
+
+        if profile.total_xp >= achievement.required_xp:
+            PlayerAchievement.objects.create(
+                profile=profile,
+                achievement=achievement,
+            )
+
+            unlocked.append({
+                "title": achievement.title,
+                "description": achievement.description,
+                "xp_reward": achievement.xp_reward,
+            })
+
+    return unlocked
+
+def achievements_api(request):
+    profile, _ = PlayerProfile.objects.get_or_create(id=1)
+
+    achievements = PlayerAchievement.objects.filter(
+        profile=profile
+    ).select_related("achievement")
+
+    data = [
+        {
+            "title": item.achievement.title,
+            "description": item.achievement.description,
+            "xp_reward": item.achievement.xp_reward,
+            "unlocked_at": item.unlocked_at.isoformat(),
+        }
+        for item in achievements
+    ]
+
+    return JsonResponse({
+        "achievements": data,
+        "total_unlocked": len(data),
     })

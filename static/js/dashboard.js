@@ -808,6 +808,9 @@ loadGoalProgress();
                     : checkbox.checked
                         ? "Task completed. No additional XP earned."
                         : "Task marked incomplete.";
+                if (result.level_up) {
+                    message.textContent += " 🎉 Level Up! Congratulations!";
+                }
 
                 await loadTasks();
                 await loadXP();
@@ -881,3 +884,47 @@ loadGoalProgress();
     loadTasks();
     loadXP();
 })();
+
+async function loadAchievements() {
+    const container = document.getElementById("achievements-list");
+
+    if (!container) return;
+
+    try {
+        const response = await fetch("/api/achievements/");
+
+        if (!response.ok) {
+            throw new Error("Failed to load achievements");
+        }
+
+        const data = await response.json();
+        container.innerHTML = "";
+
+        if (data.achievements.length === 0) {
+            container.textContent = "No badges unlocked yet. Keep learning!";
+            return;
+        }
+
+        data.achievements.forEach((achievement) => {
+            const badge = document.createElement("div");
+            badge.className = "achievement-item";
+
+            const title = document.createElement("h3");
+            title.textContent = `🏅 ${achievement.title}`;
+
+            const description = document.createElement("p");
+            description.textContent = achievement.description;
+
+            const reward = document.createElement("p");
+            reward.textContent = `XP Reward: ${achievement.xp_reward}`;
+
+            badge.append(title, description, reward);
+            container.appendChild(badge);
+        });
+    } catch (error) {
+        container.textContent = "Could not load achievements. Please try again.";
+        console.error("Achievement loading error:", error);
+    }
+}
+
+loadAchievements();
