@@ -9,4 +9,5 @@ urlpatterns = [
     path("study-goals/progress/", views.study_goal_progress_api, name="study_goal_progress_api"),
     path("xp/profile/", views.xp_profile_api, name="xp_profile_api"),
     path("achievements/", views.achievements_api, name="achievements_api"),
+    path("daily-missions/", views.daily_missions_api, name="daily_missions_api"),
 ]

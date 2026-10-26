@@ -7,9 +7,9 @@ from .models import Achievement, PlayerAchievement
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-
+from datetime import date, timedelta
 from .models import StudyTask, StudySession, StudyGoal
-
+from .models import DailyMission, PlayerMissionProgress, PlayerMissionProgress
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
@@ -62,6 +62,52 @@ def sessions_api(request):
     except (ValueError, KeyError, TypeError):
         return JsonResponse({"error": "Invalid session data"}, status=400)
 
+@transaction.atomic
+def update_daily_mission_progress(profile):
+    today = date.today()
+    completed_missions = []
+
+    missions = DailyMission.objects.filter(is_active=True)
+
+    for mission in missions:
+        progress, _ = PlayerMissionProgress.objects.get_or_create(
+            profile=profile,
+            mission=mission,
+            mission_date=today,
+        )
+
+        if progress.is_completed:
+            continue
+
+        progress.progress_count = min(
+            progress.progress_count + 1,
+            mission.target_count,
+        )
+
+        if progress.progress_count >= mission.target_count:
+            progress.is_completed = True
+
+            if not progress.reward_claimed:
+                progress.reward_claimed = True
+                award_xp(
+                    profile_id=profile.id,
+                    amount=mission.xp_reward,
+                    reason=f"Daily mission completed: {mission.title}",
+                    source_type="daily_mission",
+                    source_id=mission.id,
+                )
+
+            completed_missions.append(mission.title)
+
+        progress.save(
+            update_fields=[
+                "progress_count",
+                "is_completed",
+                "reward_claimed",
+            ]
+        )
+
+    return completed_missions
 
 @csrf_exempt
 @require_http_methods(["PATCH", "DELETE"])
@@ -97,6 +143,9 @@ def task_detail_api(request, task_id):
         
         
         xp_earned = 0
+        level_up = False
+        completed_missions = []
+        unlocked_achievements = []
 
         if "is_completed" in data:
             was_completed = task.is_completed
@@ -128,14 +177,17 @@ def task_detail_api(request, task_id):
                 task.xp_awarded = True
                 xp_earned = result["earned_xp"]
                 level_up = result["level_up"]
-
                 task.save()
+
+                completed_missions = update_daily_mission_progress(profile)
+                profile.refresh_from_db()
                 unlocked_achievements = check_achievements(profile)
 
-                return JsonResponse({
+            return JsonResponse({
                 "message": "Task updated",
                 "xp_earned": xp_earned,
                 "level_up": level_up,
+                "completed_missions": completed_missions,
                 "unlocked_achievements": unlocked_achievements,
             })
 
@@ -226,6 +278,7 @@ def study_goal_progress_api(request):
     return JsonResponse({"goals": results})
 
 
+
 @transaction.atomic
 def award_xp(profile_id, amount, reason, source_type="", source_id=None):
     if amount <= 0:
@@ -235,10 +288,37 @@ def award_xp(profile_id, amount, reason, source_type="", source_id=None):
         PlayerProfile.objects.select_for_update(),
         id=profile_id,
     )
+
     old_level = profile.level
+    today = date.today()
+    last_activity = profile.last_activity_date
+
+    # Update daily streak only once per calendar day.
+    if last_activity is None:
+        profile.current_streak = 1
+    elif last_activity == today:
+        pass
+    elif last_activity == today - timedelta(days=1):
+        profile.current_streak += 1
+    else:
+        profile.current_streak = 1
+
+    profile.longest_streak = max(
+        profile.longest_streak,
+        profile.current_streak,
+    )
+    profile.last_activity_date = today
+
     profile.total_xp += amount
     profile.level = (profile.total_xp // 100) + 1
-    profile.save(update_fields=["total_xp", "level"])
+
+    profile.save(update_fields=[
+        "total_xp",
+        "level",
+        "current_streak",
+        "longest_streak",
+        "last_activity_date",
+    ])
 
     reward = XPTransaction.objects.create(
         profile=profile,
@@ -254,8 +334,11 @@ def award_xp(profile_id, amount, reason, source_type="", source_id=None):
         "total_xp": profile.total_xp,
         "level": profile.level,
         "level_up": profile.level > old_level,
+        "current_streak": profile.current_streak,
+        "longest_streak": profile.longest_streak,
         "reason": reward.reason,
     }
+
 
 @require_http_methods(["GET"])
 def xp_profile_api(request):
@@ -321,4 +404,33 @@ def achievements_api(request):
     return JsonResponse({
         "achievements": data,
         "total_unlocked": len(data),
+    })
+
+
+def daily_missions_api(request):
+    profile, _ = PlayerProfile.objects.get_or_create(id=1)
+
+    missions = DailyMission.objects.filter(is_active=True)
+    data = []
+
+    for mission in missions:
+        progress, _ = PlayerMissionProgress.objects.get_or_create(
+            profile=profile,
+            mission=mission,
+            mission_date=date.today(),
+        )
+
+        data.append({
+            "id": mission.id,
+            "title": mission.title,
+            "description": mission.description,
+            "target_count": mission.target_count,
+            "progress_count": progress.progress_count,
+            "is_completed": progress.is_completed,
+            "xp_reward": mission.xp_reward,
+        })
+
+    return JsonResponse({
+        "missions": data,
+        "total_missions": len(data),
     })

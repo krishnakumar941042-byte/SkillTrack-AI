@@ -928,3 +928,59 @@ async function loadAchievements() {
 }
 
 loadAchievements();
+
+
+async function loadDailyMissions() {
+    const missionsList = document.getElementById("daily-missions-list");
+
+    if (!missionsList) return;
+
+    try {
+        const response = await fetch("/api/daily-missions/");
+
+        if (!response.ok) {
+            throw new Error("Failed to load missions");
+        }
+
+        const data = await response.json();
+        missionsList.replaceChildren();
+
+        if (!data.missions || data.missions.length === 0) {
+            missionsList.textContent = "No active missions available yet.";
+            return;
+        }
+
+        data.missions.forEach((mission) => {
+            const card = document.createElement("div");
+            card.className = "achievement-item";
+
+            const title = document.createElement("h3");
+            title.textContent = mission.title;
+
+            const description = document.createElement("p");
+            description.textContent = mission.description;
+
+            const progress = document.createElement("p");
+            progress.textContent =
+                `Progress: ${mission.progress_count}/${mission.target_count}`;
+
+            const reward = document.createElement("p");
+            reward.textContent = `⭐ Reward: ${mission.xp_reward} XP`;
+
+            card.append(title, description, progress, reward);
+
+            if (mission.is_completed) {
+                const completed = document.createElement("p");
+                completed.textContent = "✅ Mission completed!";
+                card.appendChild(completed);
+            }
+
+            missionsList.appendChild(card);
+        });
+    } catch (error) {
+        console.error("Daily missions error:", error);
+        missionsList.textContent = "Unable to load missions. Please refresh.";
+    }
+}
+
+loadDailyMissions();
