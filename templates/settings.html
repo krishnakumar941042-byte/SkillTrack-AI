@@ -1,0 +1,154 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ preferences.language|default:'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Profile & Settings | SkillTrack AI</title>
+    <link rel="stylesheet" href="{% static 'css/settings.css' %}">
+    <script src="{% static 'js/settings.js' %}" defer></script>
+</head>
+<body data-theme="{{ preferences.theme }}">
+    <main class="page">
+        <header class="topbar">
+            <div>
+                <a class="back-link" href="/">← Dashboard</a>
+                <p class="eyebrow">SKILLTRACK AI</p>
+                <h1>Profile & Settings</h1>
+                <p class="subtitle">Personalize your learning experience.</p>
+            </div>
+            <span class="avatar" aria-hidden="true">ST</span>
+        </header>
+
+        <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+        <form id="settings-form">
+            {% csrf_token %}
+
+            <section class="panel">
+                <div class="section-heading">
+                    <span class="section-icon">🎯</span>
+                    <div>
+                        <h2>Learning preferences</h2>
+                        <p>Choose the learning style that works for you.</p>
+                    </div>
+                </div>
+
+                <div class="field-grid">
+                    <label class="field">
+                        <span>Current skill level</span>
+                        <select name="skill_level">
+                            <option value="beginner" {% if preferences.skill_level == "beginner" %}selected{% endif %}>Beginner</option>
+                            <option value="intermediate" {% if preferences.skill_level == "intermediate" %}selected{% endif %}>Intermediate</option>
+                            <option value="advanced" {% if preferences.skill_level == "advanced" %}selected{% endif %}>Advanced</option>
+                        </select>
+                    </label>
+
+                    <label class="field">
+                        <span>Preferred learning style</span>
+                        <select name="learning_style">
+                            <option value="reading" {% if preferences.learning_style == "reading" %}selected{% endif %}>Reading</option>
+                            <option value="videos" {% if preferences.learning_style == "videos" %}selected{% endif %}>Video lessons</option>
+                            <option value="practice" {% if preferences.learning_style == "practice" %}selected{% endif %}>Practice exercises</option>
+                            <option value="projects" {% if preferences.learning_style == "projects" %}selected{% endif %}>Hands-on projects</option>
+                        </select>
+                    </label>
+
+                    <label class="field full">
+                        <span>Daily study goal</span>
+                        <div class="range-row">
+                            <input type="range" name="daily_goal" min="15" max="480" step="15" value="{{ preferences.daily_goal }}">
+                            <strong><span id="goal-value">{{ preferences.daily_goal }}</span> min/day</strong>
+                        </div>
+                        <small>Choose between 15 minutes and 8 hours.</small>
+                    </label>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="section-heading">
+                    <span class="section-icon">🌐</span>
+                    <div>
+                        <h2>Language & appearance</h2>
+                        <p>Set your preferred language and theme.</p>
+                    </div>
+                </div>
+
+                <div class="field-grid">
+                    <label class="field">
+                        <span>Language</span>
+                        <select name="language">
+                            <option value="en" {% if preferences.language == "en" %}selected{% endif %}>English</option>
+                            <option value="hi" {% if preferences.language == "hi" %}selected{% endif %}>Hindi</option>
+                        </select>
+                    </label>
+
+                    <label class="field">
+                        <span>Theme</span>
+                        <select name="theme">
+                            <option value="light" {% if preferences.theme == "light" %}selected{% endif %}>Light</option>
+                            <option value="dark" {% if preferences.theme == "dark" %}selected{% endif %}>Dark</option>
+                        </select>
+                    </label>
+                </div>
+                <p class="helper">Language preference is saved; translating all existing pages requires connecting this setting to their templates.</p>
+            </section>
+
+            <section class="panel">
+                <div class="section-heading">
+                    <span class="section-icon">🔔</span>
+                    <div>
+                        <h2>Notifications</h2>
+                        <p>Choose which learning updates you want enabled.</p>
+                    </div>
+                </div>
+
+                <label class="toggle-row">
+                    <span><strong>Study reminders</strong><small>Reminders to work toward your daily goal.</small></span>
+                    <input type="checkbox" name="study_reminders" {% if preferences.study_reminders %}checked{% endif %}>
+                </label>
+
+                <label class="toggle-row">
+                    <span><strong>Learning updates</strong><small>Updates about courses and learning activity.</small></span>
+                    <input type="checkbox" name="learning_updates" {% if preferences.learning_updates %}checked{% endif %}>
+                </label>
+
+                <label class="toggle-row">
+                    <span><strong>Achievement notifications</strong><small>Milestones and completed goals.</small></span>
+                    <input type="checkbox" name="achievement_notifications" {% if preferences.achievement_notifications %}checked{% endif %}>
+                </label>
+            </section>
+
+            <section class="panel">
+                <div class="section-heading">
+                    <span class="section-icon">🛡️</span>
+                    <div>
+                        <h2>Data & privacy</h2>
+                        <p>Export or clear preferences saved in this session.</p>
+                    </div>
+                </div>
+
+                <label class="toggle-row">
+                    <span><strong>Analytics preference</strong><small>Save whether you want learning analytics enabled. This toggle does not itself control tracking.</small></span>
+                    <input type="checkbox" name="analytics_enabled" {% if preferences.analytics_enabled %}checked{% endif %}>
+                </label>
+
+                <div class="action-row">
+                    <a class="button secondary" href="{% url 'export_settings' %}">Export settings JSON</a>
+                    <button class="button danger" id="clear-button" type="button">Clear saved preferences</button>
+                </div>
+                <p class="helper">Clearing preferences resets this session's settings to defaults. It does not delete your courses, lessons, or chat records.</p>
+            </section>
+
+            <div class="save-bar">
+                <span id="save-status">Changes are not saved until you select Save.</span>
+                <button class="button primary" type="submit">Save settings</button>
+            </div>
+        </form>
+
+        <footer>SkillTrack AI · Learn every day</footer>
+    </main>
+</body>
+</html>
