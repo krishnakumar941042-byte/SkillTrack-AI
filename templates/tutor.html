@@ -1,0 +1,220 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SkillTrack AI Tutor</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 16px;
+            background: #f4f6fb;
+            color: #20243a;
+        }
+
+        a { color: #5146e5; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 240px minmax(0, 1fr);
+            gap: 18px;
+        }
+
+        .panel, .sidebar {
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 5px 22px #1b245010;
+            min-width: 0;
+        }
+
+        h1 { margin-top: 0; font-size: 26px; }
+
+        label {
+            display: block;
+            margin-top: 14px;
+            font-weight: 600;
+        }
+
+        select, textarea, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            font: inherit;
+        }
+
+        select, textarea {
+            border: 1px solid #d9dced;
+            background: white;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            border: 0;
+            background: #5146e5;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:disabled { opacity: .6; cursor: wait; }
+
+        button.secondary {
+            background: #eeedff;
+            color: #4036c6;
+        }
+
+        #status {
+            color: #62677c;
+            font-size: 14px;
+        }
+
+        #reply {
+            overflow-wrap: anywhere;
+            line-height: 1.7;
+        }
+
+        #reply pre {
+            position: relative;
+            overflow-x: auto;
+            padding: 42px 14px 14px;
+            border-radius: 9px;
+            background: #171b2b;
+            color: #f1f3ff;
+        }
+
+        #reply pre code {
+            font-family: Consolas, monospace;
+            white-space: pre;
+        }
+
+        #reply .copy-code {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: auto;
+            margin: 0;
+            padding: 6px 10px;
+            font-size: 12px;
+            background: #454b64;
+        }
+
+        .history-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-title h2 { font-size: 18px; }
+
+        #history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .history-item {
+            background: #f3f3ff;
+            color: #28244e;
+            text-align: left;
+            overflow-wrap: anywhere;
+            margin: 0;
+        }
+
+        .history-empty {
+            color: #74788a;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .answer-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .answer-actions button { flex: 1; }
+
+        @media (max-width: 700px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { order: 2; }
+            .panel { order: 1; }
+        }
+    </style>
+</head>
+
+<body>
+    <p><a href="/">← Back to Dashboard</a></p>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <button id="new-chat" type="button">+ New Chat</button>
+
+            <div class="history-title">
+                <h2>Chat History</h2>
+                <button id="clear-history" class="secondary"
+                        type="button">Clear</button>
+            </div>
+
+            <div id="history-list">
+                <p class="history-empty">Your recent chats will appear here.</p>
+            </div>
+        </aside>
+
+        <main class="panel">
+            <h1>SkillTrack AI Tutor</h1>
+            <p id="status" aria-live="polite">Checking AI connection...</p>
+
+            <label for="language">Answer language</label>
+            <select id="language">
+                <option value="en">English</option>
+                <option value="hi">Hindi / Hinglish</option>
+            </select>
+
+            <label for="mode">What do you need?</label>
+            <select id="mode">
+                <option value="learn">Learn a topic</option>
+                <option value="code">Explain code errors</option>
+                <option value="hint">Give me a hint</option>
+                <option value="plan">Make a study plan</option>
+            </select>
+
+            <label for="message">Your question</label>
+            <textarea id="message" maxlength="3000"
+                placeholder="Ask a question or paste code to review..."></textarea>
+
+            <button id="send" type="button">Ask Gemini</button>
+
+            <div class="history-title">
+                <h2>Answer</h2>
+            </div>
+
+            <div class="answer-actions">
+                <button id="copy-answer" class="secondary" type="button">
+                    Copy Answer
+                </button>
+            </div>
+
+            <div id="reply" aria-live="polite">
+                Your answer will appear here.
+            </div>
+        </main>
+    </div>
+
+    <!-- Load libraries before tutor.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+    <script src="{% static 'js/tutor.js' %}"></script>
+</body>
+</html>
