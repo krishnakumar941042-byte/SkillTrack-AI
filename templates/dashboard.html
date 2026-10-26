@@ -330,21 +330,95 @@
             </section>
 
 
+
             <section class="section-heading" id="analytics">
                 <div>
                     <h2>Learning Analytics</h2>
-                    <p>Track your learning progress and review your milestones.</p>
+                    <p>Track your study time, quiz accuracy, and learning milestones.</p>
                 </div>
             </section>
 
-            <section class="stat-card">
-                <div class="stat-top">
-                    <span class="stat-icon blue">▥</span>
-                    <span class="trend-badge">Coming soon</span>
-                </div>
-                <h3>Your Progress Report</h3>
-                <p>Your learning charts and progress reports will appear here.</p>
+            <section class="analytics-summary-grid">
+                <article class="stat-card">
+                    <h3>This Month</h3>
+                    <p><strong id="monthly-hours">0</strong> study hours</p>
+                    <small id="monthly-minutes">0 minutes studied</small>
+                </article>
+
+                <article class="stat-card">
+                    <h3>Quiz Accuracy</h3>
+                    <p><strong id="monthly-accuracy">0%</strong></p>
+                    <small id="monthly-quiz-count">0 attempts</small>
+                </article>
+
+                <article class="stat-card">
+                    <h3>Learning Level</h3>
+                    <p>Level <strong id="analytics-level">1</strong></p>
+                    <small><span id="analytics-xp">0</span> total XP</small>
+                </article>
+
+                <article class="stat-card">
+                    <h3>Lessons Completed</h3>
+                    <p><strong id="lessons-completed">0</strong></p>
+                    <small id="lessons-total">0 total lessons</small>
+                </article>
             </section>
+
+            <section class="analytics-charts-grid">
+                <article class="stat-card analytics-chart-card">
+                    <h3>Weekly Study Progress</h3>
+                    <p>Study minutes per day over the last seven days.</p>
+                    <div class="analytics-chart-container">
+                        <canvas id="weeklyProgressChart"></canvas>
+                    </div>
+                </article>
+
+                <article class="stat-card analytics-chart-card">
+                    <h3>Quiz Accuracy by Topic</h3>
+                    <p>Accuracy based on recorded quiz submissions.</p>
+                    <div class="analytics-chart-container">
+                        <canvas id="topicAccuracyChart"></canvas>
+                    </div>
+                </article>
+
+                <article class="stat-card analytics-chart-card">
+                    <h3>Monthly Study Time</h3>
+                    <p>Study minutes recorded this year, month by month.</p>
+                    <div class="analytics-chart-container">
+                        <canvas id="monthlyStudyChart"></canvas>
+                    </div>
+                </article>
+            </section>
+
+            <section class="analytics-topics-grid">
+                <article class="stat-card">
+                    <h3>Strong Topics</h3>
+                    <p>Your highest-accuracy attempted questions.</p>
+                    <ul id="strong-topics-list">
+                        <li>Loading topics...</li>
+                    </ul>
+                </article>
+
+                <article class="stat-card">
+                    <h3>Topics to Practise</h3>
+                    <p>Your lowest-accuracy attempted questions.</p>
+                    <ul id="weak-topics-list">
+                        <li>Loading topics...</li>
+                    </ul>
+                </article>
+            </section>
+
+            <div class="analytics-report-actions">
+                <a class="btn btn-primary" href="/analytics/monthly-report.csv">
+                    Download Monthly Report (CSV)
+                </a>
+                <button type="button" class="btn" id="refreshAnalytics">
+                    Refresh Analytics
+                </button>
+            </div>
+            </section>
+            </section>
+
 
 
 
@@ -354,7 +428,8 @@
         </main>
 
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'js/analytics.js' %}"></script>
     <script src="{% static 'js/dashboard.js' %}"></script>
 
 </body>

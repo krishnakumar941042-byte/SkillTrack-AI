@@ -1886,3 +1886,78 @@ body.sidebar-collapsed .sidebar-toggle {
     margin: 6px 0;
     color: var(--text-secondary, #6b7280);
 }
+
+
+/* SkillTrack AI - Analytics */
+.analytics-summary-grid,
+.analytics-charts-grid,
+.analytics-topics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.analytics-summary-grid .stat-card,
+.analytics-chart-card,
+.analytics-topics-grid .stat-card {
+    min-width: 0;
+    padding: 22px;
+}
+
+.analytics-summary-grid h3,
+.analytics-chart-card h3,
+.analytics-topics-grid h3 {
+    margin-top: 0;
+}
+
+.analytics-summary-grid p {
+    font-size: 1.5rem;
+    margin: 12px 0 5px;
+}
+
+.analytics-summary-grid small {
+    opacity: 0.75;
+}
+
+.analytics-chart-container {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    margin-top: 18px;
+}
+
+.analytics-topics-grid ul {
+    padding-left: 20px;
+}
+
+.analytics-topics-grid li {
+    margin: 12px 0;
+    overflow-wrap: anywhere;
+}
+
+.analytics-report-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 30px;
+}
+
+.analytics-report-actions a,
+.analytics-report-actions button {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+@media (max-width: 760px) {
+    .analytics-summary-grid,
+    .analytics-charts-grid,
+    .analytics-topics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .analytics-chart-container {
+        height: 240px;
+    }
+}
