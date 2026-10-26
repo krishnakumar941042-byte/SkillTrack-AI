@@ -23,6 +23,26 @@ class TutorPageTests(TestCase):
 
 
 class TutorChatTests(TestCase):
+    
+    @patch("google.genai.Client")
+    def test_gemini_api_failure_returns_safe_fallback(self, mock_client):
+        mock_client.return_value.models.generate_content.side_effect = (
+            Exception("Simulated Gemini API failure")
+        )
+
+        with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}):
+            response = self.post_message(
+                "Explain Python loops",
+                language="en",
+                mode="learn",
+            )
+
+        self.assertEqual(response.status_code, 502)
+
+        data = response.json()
+        self.assertEqual(data["mode"], "fallback")
+        self.assertIn("Please try again later.", data["reply"])
+
     def setUp(self):
         cache.clear()
 
