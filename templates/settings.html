@@ -1,154 +1,425 @@
-
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="{{ preferences.language|default:'en' }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>Profile & Settings | SkillTrack AI</title>
-    <link rel="stylesheet" href="{% static 'css/settings.css' %}">
-    <script src="{% static 'js/settings.js' %}" defer></script>
-</head>
-<body data-theme="{{ preferences.theme }}">
-    <main class="page">
-        <header class="topbar">
-            <div>
-                <a class="back-link" href="/">← Dashboard</a>
-                <p class="eyebrow">SKILLTRACK AI</p>
-                <h1>Profile & Settings</h1>
-                <p class="subtitle">Personalize your learning experience.</p>
+
+{% block title %}Settings | SkillTrack AI{% endblock %}
+{% block heading %}Profile & Settings{% endblock %}
+{% block subtitle %}Personalize your learning experience and study preferences.{% endblock %}
+
+{% block extra_head %}
+<style>
+.settings-page {
+    --settings-panel: var(--panel, #fff);
+    --settings-text: var(--text, #172033);
+    --settings-muted: var(--muted, #707b91);
+    --settings-border: var(--border, #e5e9f2);
+    --settings-primary: var(--primary, #6558e8);
+    --settings-soft: var(--primary-soft, #efedff);
+    display: grid;
+    gap: 20px;
+    padding-bottom: 24px;
+    color: var(--settings-text);
+}
+
+.settings-notice {
+    display: none;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+.settings-notice.show { display: block; }
+.settings-notice.success { background: #dff8e9; color: #146b3a; }
+.settings-notice.error { background: #ffe6e9; color: #9a2334; }
+
+.settings-card {
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid var(--settings-border);
+    border-radius: 18px;
+    background: var(--settings-panel);
+    box-shadow: var(--shadow, 0 8px 28px rgba(31,41,80,.05));
+}
+
+.settings-card-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.settings-card-heading h2 {
+    margin: 2px 0 6px;
+    font-size: 18px;
+}
+
+.settings-card-heading p,
+.settings-helper,
+.settings-field small,
+.settings-toggle small {
+    color: var(--settings-muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.settings-card-heading p { margin: 0; }
+
+.settings-icon {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 46px;
+    border-radius: 14px;
+    background: var(--settings-soft);
+    font-size: 21px;
+}
+
+.settings-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.settings-field {
+    display: grid;
+    align-content: start;
+    gap: 9px;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.settings-field.full { grid-column: 1 / -1; }
+
+.settings-page select {
+    width: 100%;
+    min-height: 46px;
+    margin: 0;
+    padding: 10px 13px;
+    border: 1px solid var(--settings-border);
+    border-radius: 11px;
+    background: var(--bg, #f4f6fb);
+    color: var(--settings-text);
+    font: inherit;
+}
+
+.settings-range-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.settings-range-row input {
+    flex: 1;
+    min-width: 0;
+    accent-color: var(--settings-primary);
+}
+
+.settings-range-row strong {
+    min-width: 100px;
+    color: var(--settings-primary);
+    text-align: right;
+    font-size: 13px;
+}
+
+.settings-field small { font-weight: 400; }
+
+.settings-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 17px 0;
+    border-top: 1px solid var(--settings-border);
+    cursor: pointer;
+}
+
+.settings-toggle:first-of-type { border-top: 0; }
+
+.settings-toggle > span {
+    display: grid;
+    gap: 5px;
+}
+
+.settings-toggle strong { font-size: 14px; }
+.settings-toggle small { font-weight: 400; }
+
+.settings-toggle input {
+    appearance: none;
+    position: relative;
+    width: 46px;
+    height: 26px;
+    flex: 0 0 46px;
+    margin: 0;
+    border-radius: 30px;
+    background: #aab1c1;
+    cursor: pointer;
+    transition: background .2s;
+}
+
+.settings-toggle input::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    transition: transform .2s;
+}
+
+.settings-toggle input:checked { background: var(--settings-primary); }
+.settings-toggle input:checked::after { transform: translateX(20px); }
+
+.settings-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.settings-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 10px 17px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.settings-button.primary {
+    background: var(--settings-primary);
+    color: #fff;
+}
+
+.settings-button.secondary {
+    background: var(--settings-soft);
+    color: var(--settings-primary);
+}
+
+.settings-button.danger {
+    border-color: var(--settings-border);
+    background: transparent;
+    color: #c33b4b;
+}
+
+.settings-button:disabled { opacity: .6; cursor: wait; }
+
+.settings-page :is(select, input, button, a):focus-visible {
+    outline: 3px solid var(--settings-primary);
+    outline-offset: 3px;
+}
+
+.settings-save-bar {
+    position: sticky;
+    bottom: 12px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid var(--settings-border);
+    border-radius: 16px;
+    background: var(--settings-panel);
+    box-shadow: var(--shadow, 0 8px 28px rgba(31,41,80,.08));
+}
+
+#save-status {
+    color: var(--settings-muted);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+@media (max-width: 650px) {
+    .settings-card { padding: 18px; }
+    .settings-fields { grid-template-columns: 1fr; gap: 18px; }
+    .settings-field.full { grid-column: auto; }
+    .settings-save-bar { align-items: stretch; flex-direction: column; }
+    .settings-save-bar .settings-button { width: 100%; }
+    .settings-range-row { gap: 10px; }
+    .settings-range-row strong { min-width: 88px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+
+    <section class="welcome-banner">
+        <div>
+            <p class="banner-label">YOUR PERSONAL SPACE</p>
+            <h2>Make learning work for you.</h2>
+            <p style="color: black">Choose your goals, preferred learning style and notifications.</p>
+        </div>
+        <div class="banner-art" aria-hidden="true">⚙️</div>
+    </section>
+
+    <div id="notice" class="settings-notice" role="status"
+         aria-live="polite"></div>
+
+    <form id="settings-form">
+        {% csrf_token %}
+
+        <section class="settings-card">
+            <div class="settings-card-heading">
+                <span class="settings-icon">🎯</span>
+                <div>
+                    <h2>Learning preferences</h2>
+                    <p>Set your skill level and daily study target.</p>
+                </div>
             </div>
-            <span class="avatar" aria-hidden="true">ST</span>
-        </header>
 
-        <div id="notice" class="notice" role="status" aria-live="polite"></div>
-
-        <form id="settings-form">
-            {% csrf_token %}
-
-            <section class="panel">
-                <div class="section-heading">
-                    <span class="section-icon">🎯</span>
-                    <div>
-                        <h2>Learning preferences</h2>
-                        <p>Choose the learning style that works for you.</p>
-                    </div>
-                </div>
-
-                <div class="field-grid">
-                    <label class="field">
-                        <span>Current skill level</span>
-                        <select name="skill_level">
-                            <option value="beginner" {% if preferences.skill_level == "beginner" %}selected{% endif %}>Beginner</option>
-                            <option value="intermediate" {% if preferences.skill_level == "intermediate" %}selected{% endif %}>Intermediate</option>
-                            <option value="advanced" {% if preferences.skill_level == "advanced" %}selected{% endif %}>Advanced</option>
-                        </select>
-                    </label>
-
-                    <label class="field">
-                        <span>Preferred learning style</span>
-                        <select name="learning_style">
-                            <option value="reading" {% if preferences.learning_style == "reading" %}selected{% endif %}>Reading</option>
-                            <option value="videos" {% if preferences.learning_style == "videos" %}selected{% endif %}>Video lessons</option>
-                            <option value="practice" {% if preferences.learning_style == "practice" %}selected{% endif %}>Practice exercises</option>
-                            <option value="projects" {% if preferences.learning_style == "projects" %}selected{% endif %}>Hands-on projects</option>
-                        </select>
-                    </label>
-
-                    <label class="field full">
-                        <span>Daily study goal</span>
-                        <div class="range-row">
-                            <input type="range" name="daily_goal" min="15" max="480" step="15" value="{{ preferences.daily_goal }}">
-                            <strong><span id="goal-value">{{ preferences.daily_goal }}</span> min/day</strong>
-                        </div>
-                        <small>Choose between 15 minutes and 8 hours.</small>
-                    </label>
-                </div>
-            </section>
-
-            <section class="panel">
-                <div class="section-heading">
-                    <span class="section-icon">🌐</span>
-                    <div>
-                        <h2>Language & appearance</h2>
-                        <p>Set your preferred language and theme.</p>
-                    </div>
-                </div>
-
-                <div class="field-grid">
-                    <label class="field">
-                        <span>Language</span>
-                        <select name="language">
-                            <option value="en" {% if preferences.language == "en" %}selected{% endif %}>English</option>
-                            <option value="hi" {% if preferences.language == "hi" %}selected{% endif %}>Hindi</option>
-                        </select>
-                    </label>
-
-                    <label class="field">
-                        <span>Theme</span>
-                        <select name="theme">
-                            <option value="light" {% if preferences.theme == "light" %}selected{% endif %}>Light</option>
-                            <option value="dark" {% if preferences.theme == "dark" %}selected{% endif %}>Dark</option>
-                        </select>
-                    </label>
-                </div>
-                <p class="helper">Language preference is saved; translating all existing pages requires connecting this setting to their templates.</p>
-            </section>
-
-            <section class="panel">
-                <div class="section-heading">
-                    <span class="section-icon">🔔</span>
-                    <div>
-                        <h2>Notifications</h2>
-                        <p>Choose which learning updates you want enabled.</p>
-                    </div>
-                </div>
-
-                <label class="toggle-row">
-                    <span><strong>Study reminders</strong><small>Reminders to work toward your daily goal.</small></span>
-                    <input type="checkbox" name="study_reminders" {% if preferences.study_reminders %}checked{% endif %}>
+            <div class="settings-fields">
+                <label class="settings-field">
+                    <span>Current skill level</span>
+                    <select name="skill_level">
+                        <option value="beginner" {% if preferences.skill_level == "beginner" %}selected{% endif %}>Beginner</option>
+                        <option value="intermediate" {% if preferences.skill_level == "intermediate" %}selected{% endif %}>Intermediate</option>
+                        <option value="advanced" {% if preferences.skill_level == "advanced" %}selected{% endif %}>Advanced</option>
+                    </select>
                 </label>
 
-                <label class="toggle-row">
-                    <span><strong>Learning updates</strong><small>Updates about courses and learning activity.</small></span>
-                    <input type="checkbox" name="learning_updates" {% if preferences.learning_updates %}checked{% endif %}>
+                <label class="settings-field">
+                    <span>Preferred learning style</span>
+                    <select name="learning_style">
+                        <option value="reading" {% if preferences.learning_style == "reading" %}selected{% endif %}>Reading</option>
+                        <option value="videos" {% if preferences.learning_style == "videos" %}selected{% endif %}>Video lessons</option>
+                        <option value="practice" {% if preferences.learning_style == "practice" %}selected{% endif %}>Practice exercises</option>
+                        <option value="projects" {% if preferences.learning_style == "projects" %}selected{% endif %}>Hands-on projects</option>
+                    </select>
                 </label>
 
-                <label class="toggle-row">
-                    <span><strong>Achievement notifications</strong><small>Milestones and completed goals.</small></span>
-                    <input type="checkbox" name="achievement_notifications" {% if preferences.achievement_notifications %}checked{% endif %}>
-                </label>
-            </section>
-
-            <section class="panel">
-                <div class="section-heading">
-                    <span class="section-icon">🛡️</span>
-                    <div>
-                        <h2>Data & privacy</h2>
-                        <p>Export or clear preferences saved in this session.</p>
+                <label class="settings-field full">
+                    <span>Daily study goal</span>
+                    <div class="settings-range-row">
+                        <input type="range" name="daily_goal" min="15"
+                               max="480" step="15"
+                               value="{{ preferences.daily_goal }}">
+                        <strong><span id="goal-value">{{ preferences.daily_goal }}</span> min/day</strong>
                     </div>
-                </div>
-
-                <label class="toggle-row">
-                    <span><strong>Analytics preference</strong><small>Save whether you want learning analytics enabled. This toggle does not itself control tracking.</small></span>
-                    <input type="checkbox" name="analytics_enabled" {% if preferences.analytics_enabled %}checked{% endif %}>
+                    <small>Choose between 15 minutes and 8 hours.</small>
                 </label>
-
-                <div class="action-row">
-                    <a class="button secondary" href="{% url 'export_settings' %}">Export settings JSON</a>
-                    <button class="button danger" id="clear-button" type="button">Clear saved preferences</button>
-                </div>
-                <p class="helper">Clearing preferences resets this session's settings to defaults. It does not delete your courses, lessons, or chat records.</p>
-            </section>
-
-            <div class="save-bar">
-                <span id="save-status">Changes are not saved until you select Save.</span>
-                <button class="button primary" type="submit">Save settings</button>
             </div>
-        </form>
+        </section>
 
-        <footer>SkillTrack AI · Learn every day</footer>
-    </main>
-</body>
-</html>
+        <section class="settings-card">
+            <div class="settings-card-heading">
+                <span class="settings-icon">🌐</span>
+                <div>
+                    <h2>Language & appearance</h2>
+                    <p>Choose the language and theme you prefer.</p>
+                </div>
+            </div>
+
+            <div class="settings-fields">
+                <label class="settings-field">
+                    <span>Language</span>
+                    <select name="language">
+                        <option value="en" {% if preferences.language == "en" %}selected{% endif %}>English</option>
+                        <option value="hi" {% if preferences.language == "hi" %}selected{% endif %}>Hindi</option>
+                    </select>
+                </label>
+
+                <label class="settings-field">
+                    <span>Theme</span>
+                    <select name="theme">
+                        <option value="light" {% if preferences.theme == "light" %}selected{% endif %}>Light</option>
+                        <option value="dark" {% if preferences.theme == "dark" %}selected{% endif %}>Dark</option>
+                    </select>
+                </label>
+            </div>
+
+            <p class="settings-helper">
+                The language preference is saved. Translating all page content
+                requires connecting the preference to each page.
+            </p>
+        </section>
+
+        <section class="settings-card">
+            <div class="settings-card-heading">
+                <span class="settings-icon">🔔</span>
+                <div>
+                    <h2>Notifications</h2>
+                    <p>Choose which learning updates you want enabled.</p>
+                </div>
+            </div>
+
+            <label class="settings-toggle">
+                <span>
+                    <strong>Study reminders</strong>
+                    <small>Reminders to work toward your daily goal.</small>
+                </span>
+                <input type="checkbox" name="study_reminders"
+                       {% if preferences.study_reminders %}checked{% endif %}>
+            </label>
+
+            <label class="settings-toggle">
+                <span>
+                    <strong>Learning updates</strong>
+                    <small>Updates about courses and learning activity.</small>
+                </span>
+                <input type="checkbox" name="learning_updates"
+                       {% if preferences.learning_updates %}checked{% endif %}>
+            </label>
+
+            <label class="settings-toggle">
+                <span>
+                    <strong>Achievement notifications</strong>
+                    <small>Milestones and completed goals.</small>
+                </span>
+                <input type="checkbox" name="achievement_notifications"
+                       {% if preferences.achievement_notifications %}checked{% endif %}>
+            </label>
+        </section>
+
+        <section class="settings-card">
+            <div class="settings-card-heading">
+                <span class="settings-icon">🛡️</span>
+                <div>
+                    <h2>Data & privacy</h2>
+                    <p>Manage your saved preferences.</p>
+                </div>
+            </div>
+
+            <label class="settings-toggle">
+                <span>
+                    <strong>Analytics preference</strong>
+                    <small>This preference does not itself control data tracking.</small>
+                </span>
+                <input type="checkbox" name="analytics_enabled"
+                       {% if preferences.analytics_enabled %}checked{% endif %}>
+            </label>
+
+            <div class="settings-actions">
+                <a class="settings-button secondary"
+                   href="{% url 'export_settings' %}">Export settings JSON</a>
+                <button class="settings-button danger" id="clear-button"
+                        type="button">Clear saved preferences</button>
+            </div>
+
+            <p class="settings-helper">
+                Clearing preferences should not delete courses or lessons.
+            </p>
+        </section>
+
+        <div class="settings-save-bar">
+            <span id="save-status">Changes are not saved until you select Save.</span>
+            <button class="settings-button primary" type="submit">
+                Save settings
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/settings.js' %}"></script>
+{% endblock %}

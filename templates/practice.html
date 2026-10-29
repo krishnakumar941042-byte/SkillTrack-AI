@@ -1,0 +1,51 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Practice Lab | SkillTrack AI{% endblock %}
+{% block heading %}Practice Lab{% endblock %}
+{% block subtitle %}Build coding confidence one question at a time.{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div>
+        <p class="banner-label">PRACTISE · LEARN · IMPROVE</p>
+        <h2>Turn knowledge into skills.</h2>
+        <p style="color: black;">Attempt questions, check your answers and learn from mistakes.</p>
+    </div>
+    <div class="banner-art" aria-hidden="true">⌨</div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <p style="color: black;">Questions attempted</p>
+        <h3 id="practice-attempts">0</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Correct answers</p>
+        <h3 id="practice-correct">0</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Accuracy</p>
+        <h3 id="practice-accuracy">0%</h3>
+    </article>
+</section>
+
+<section class="section-heading">
+    <div>
+        <h2>Coding Challenges</h2>
+        <p>Select a question and submit your answer.</p>
+    </div>
+</section>
+
+<section id="practice">
+    <div class="stat-card">
+        <p id="practice-page-message" role="status">Loading practice questions...</p>
+        <div id="practice-page-questions"></div>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/practice-page.js' %}"></script>
+{% endblock %}

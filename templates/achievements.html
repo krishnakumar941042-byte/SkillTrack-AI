@@ -1,0 +1,63 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Achievements | SkillTrack AI{% endblock %}
+{% block heading %}Achievements{% endblock %}
+{% block subtitle %}Celebrate your progress and keep building your learning streak.{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div>
+        <p class="banner-label">EVERY STEP COUNTS</p>
+        <h2>Small wins lead to big achievements.</h2>
+        <p style="color: black;">Complete study tasks and earn XP as you progress.</p>
+    </div>
+    <div class="banner-art" aria-hidden="true">🏆</div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <p style="color: black;">Total XP</p>
+        <h3 id="achievement-xp">0</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Current Level</p>
+        <h3 id="achievement-level">1</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Achievements Unlocked</p>
+        <h3 id="achievement-count">0</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Current Streak</p>
+        <h3 id="achievement-streak">0 days</h3>
+    </article>
+</section>
+
+<section class="section-heading">
+    <div>
+        <h2>Daily Missions</h2>
+        <p>Complete study activities to make progress.</p>
+    </div>
+</section>
+<section class="stat-card">
+    <p id="mission-message" role="status">Loading missions...</p>
+    <div id="daily-missions-list"></div>
+</section>
+
+<section class="section-heading">
+    <div>
+        <h2>Unlocked Achievements</h2>
+        <p>Your learning milestones so far.</p>
+    </div>
+</section>
+<section class="stat-card">
+    <p id="achievement-message" role="status">Loading achievements...</p>
+    <div id="unlocked-achievements-list"></div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/achievements-page.js' %}"></script>
+{% endblock %}

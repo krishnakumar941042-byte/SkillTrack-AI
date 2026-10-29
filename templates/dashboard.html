@@ -1,437 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillTrack AI | Dashboard</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-</head>
-
-<body>
-    <div class="app-container">
-        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar" aria-expanded="true"
-            exit()>
-            ⋮
-        </button>
-
-        <aside class="sidebar">
-            <div class="brand">
-                <div class="brand-icon">S</div>
-                <span>SkillTrack <strong>AI</strong></span>
-            </div>
-
-            <p class="menu-label">WORKSPACE</p>
-
-            <nav class="sidebar-nav">
-                <a href="/" class="nav-link active">
-                    <span class="nav-icon">▦</span>
-                    Dashboard
-                </a>
-                <a href="#learning" class="nav-link">
-                    <span class="nav-icon">📚</span>
-                    My Learning
-                </a>
-                <a href="#practice" class="nav-link">
-                    <span class="nav-icon">⌨</span>
-                    Practice Lab
-                </a>
-                <a href="#planner" class="nav-link">
-                    <span class="nav-icon">▣</span>
-                    Study Planner
-                </a>
-                <a href="#achievements" class="nav-link">
-                    <span class="nav-icon">🏆</span>
-                    Achievements
-                </a>
-                <a href="#analytics" class="nav-link">
-                    <span class="nav-icon">▥</span>
-                    Analytics
-                </a>
-            </nav>
-
-            <div class="sidebar-bottom">
-                <div class="sidebar-tip">
-                    <span class="tip-icon">✦</span>
-                    <h3>Keep growing!</h3>
-                    <p>Small steps lead to big achievements.</p>
-                </div>
-                <p class="sidebar-version">SKILLTRACK AI · LEARN EVERY DAY</p>
-            </div>
-        </aside>
-
-        <main class="main-content">
-
-            <header class="top-navbar">
-                <div class="navbar-search">
-                    <span>⌕</span>
-                    <input type="search" id="dashboard-search" placeholder="Search courses, lessons..."
-                        aria-label="Search dashboard sections">
-                </div>
-
-                <div class="navbar-actions">
-
-                    <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch to dark theme"
-                        title="Switch theme">
-                        ☾
-                    </button>
-
-
-                    <button class="icon-button" id="notification-toggle" type="button" aria-label="Notifications"
-                        title="View notifications">
-                        ♧
-                        <span class="notification-dot"></span>
-                    </button>
-
-
-                    <div class="profile-area">
-                        <div class="profile-avatar">S</div>
-                        <div class="profile-info">
-                            <strong>Student</strong>
-                            <span>Learning Explorer</span>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <header class="page-heading">
-                <div>
-                    <p class="eyebrow">YOUR LEARNING SPACE</p>
-                    <h1>Dashboard</h1>
-                    <p class="welcome-text">Welcome back! Ready to learn something new?</p>
-                </div>
-                <div class="date-chip">✦ Your growth starts here</div>
-            </header>
-
-            <section class="welcome-banner">
-                <div>
-                    <p class="banner-label">YOUR JOURNEY, YOUR PACE</p>
-                    <h2>Build skills. Reach goals.</h2>
-                    <p>Every lesson brings you one step closer to your goals.</p>
-                </div>
-                <div class="banner-art" aria-hidden="true">✦</div>
-            </section>
-
-            <section class="section-heading" id="learning">
-                <div>
-                    <h2>Your overview</h2>
-                    <p>Your learning journey at a glance.</p>
-                </div>
-            </section>
-
-
-            <section class="stats-grid">
-                <article class="stat-card">
-                    <div class="stat-top">
-                        <span class="stat-icon purple">▤</span>
-                        <span class="trend-badge">In progress</span>
-                    </div>
-                    <p>Active Courses</p>
-                    <h3>04</h3>
-                    <div class="progress-track">
-                        <div class="progress-fill purple-fill" style="width: 65%"></div>
-                    </div>
-                    <span class="stat-note">65% average progress</span>
-                </article>
-
-                <article class="stat-card">
-                    <div class="stat-top">
-                        <span class="stat-icon green">✓</span>
-                        <span class="trend-badge">Completed</span>
-                    </div>
-                    <p>Lessons Completed</p>
-                    <h3>28</h3>
-                    <div class="progress-track">
-                        <div class="progress-fill green-fill" style="width: 70%"></div>
-                    </div>
-                    <span class="stat-note">28 of 40 sample lessons</span>
-                </article>
-
-                <article class="stat-card">
-                    <div class="stat-top">
-                        <span class="stat-icon orange">⚡</span>
-                        <span class="trend-badge">Daily goal</span>
-                    </div>
-                    <p>Learning Streak</p>
-                    <h3>05 days</h3>
-                    <div class="progress-track">
-                        <div class="progress-fill orange-fill" style="width: 50%"></div>
-                    </div>
-                    <span class="stat-note">5 of 10 sample days</span>
-                </article>
-
-                <article class="stat-card">
-                    <div class="stat-top">
-                        <span class="stat-icon blue">★</span>
-                        <span class="trend-badge">Earned</span>
-                    </div>
-                    <p>Total XP</p>
-                    <h3>1,250</h3>
-                    <div class="progress-track">
-                        <div class="progress-fill blue-fill" style="width: 75%"></div>
-                    </div>
-                    <span class="stat-note">75% of sample milestone</span>
-                </article>
-            </section>
-
-            <section class="section-heading" id="practice">
-                <div>
-                    <h2>Practice Lab</h2>
-                    <p>Practice your coding skills and improve step by step.</p>
-                </div>
-            </section>
-
-            <section class="stat-card">
-                <div class="stat-top">
-                    <span class="stat-icon purple">⌨</span>
-                    <span class="trend-badge">Coming soon</span>
-                </div>
-                <h3>Python Practice</h3>
-                <p>Interactive coding exercises will be available here.</p>
-            </section>
-
-            <section class="section-heading" id="planner">
-                <div>
-                    <h2>Study Planner</h2>
-                    <p>Plan your study sessions and build a daily learning habit.</p>
-                </div>
-            </section>
-
-
-            <section class="section-heading" id="tasks">
-                <div>
-                    <h2>Study Tasks</h2>
-                    <p>Create tasks, complete them, and earn XP.</p>
-                </div>
-            </section>
-
-            <section class="xp-card">
-                <div class="xp-card-header">
-                    <div>
-                        <h2>🏆 Your Progress</h2>
-                        <p>Keep learning and earn XP!</p>
-                    </div>
-                    <div class="xp-level">
-                        Level <span id="player-level">1</span>
-                    </div>
-                </div>
-
-                <div class="xp-total">
-                    <span>Total XP</span>
-                    <strong id="total-xp">0</strong>
-                </div>
-
-                <div class="xp-progress-track">
-                    <div class="xp-progress-fill" id="xp-progress-fill"></div>
-                </div>
-
-                <p class="xp-next-level">
-                    <span id="xp-for-next-level">100</span> XP needed for next level
-                </p>
-            </section>
-
-            <section class="achievement-card">
-                <h2>🏅 Unlocked Achievements</h2>
-                <p>Your learning milestones</p>
-
-                <div id="achievements-list">
-                    Loading achievements...
-                </div>
-            </section>
-
-            <section class="achievement-card" id="daily-missions-section">
-                <h2>🎯 Daily Missions</h2>
-                <p>Complete small goals and earn XP</p>
-                <div id="daily-missions-list">Loading missions...</div>
-            </section>
-
-            <section class="stat-card" id="study-tasks-card">
-                <form id="study-task-form">
-                    <label for="task-title">Task title</label>
-                    <input id="task-title" type="text" placeholder="e.g. Python Practice Test" required>
-
-                    <label for="task-description">Description</label>
-                    <textarea id="task-description" placeholder="Describe your study task"></textarea>
-
-                    <label for="task-priority">Priority</label>
-                    <select id="task-priority">
-                        <option value="low">Low</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="high">High</option>
-                    </select>
-
-                    <button type="submit">Add Task</button>
-                </form>
-
-                <p id="task-message" role="status"></p>
-                <div id="study-task-list">Loading tasks...</div>
-            </section>
-
-
-            <section id="study-timer">
-                <h2>Study Timer</h2>
-
-                <label for="timer-subject">Subject</label>
-                <input id="timer-subject" type="text" placeholder="e.g. Python">
-
-                <label for="timer-minutes">Duration (minutes)</label>
-                <input id="timer-minutes" type="number" min="1" value="25">
-
-                <h3 id="timer-display">25:00</h3>
-
-                <button id="timer-start" type="button">Start</button>
-                <button id="timer-pause" type="button">Pause</button>
-                <button id="timer-reset" type="button">Reset</button>
-
-                <p id="timer-message"></p>
-            </section>
-
-
-            <section id="study-history">
-                <h2>Study Session History</h2>
-                <p id="history-message">Loading study sessions...</p>
-                <div id="history-list"></div>
-            </section>
-
-
-            <section id="goal-progress">
-                <h2>Planned vs Actual Study Time</h2>
-                <p id="goal-progress-message">Loading goal progress...</p>
-                <div id="goal-progress-list"></div>
-            </section>
-
-
-
-            <section class="stat-card">
-                <div class="stat-top">
-                    <span class="stat-icon green">▣</span>
-                    <span class="trend-badge">Coming soon</span>
-                </div>
-                <h3>My Study Goals</h3>
-                <p>Your daily tasks and study schedule will appear here.</p>
-            </section>
-
-
-            <section class="section-heading" id="achievements">
-                <div>
-                    <h2>Achievements</h2>
-                    <p>Celebrate your progress and learning milestones.</p>
-                </div>
-            </section>
-
-            <section class="stat-card">
-                <div class="stat-top">
-                    <span class="stat-icon orange">🏆</span>
-                    <span class="trend-badge">Coming soon</span>
-                </div>
-                <h3>Learning Champion</h3>
-                <p>Your badges and earned achievements will appear here.</p>
-            </section>
-
-
-
-            <section class="section-heading" id="analytics">
-                <div>
-                    <h2>Learning Analytics</h2>
-                    <p>Track your study time, quiz accuracy, and learning milestones.</p>
-                </div>
-            </section>
-
-            <section class="analytics-summary-grid">
-                <article class="stat-card">
-                    <h3>This Month</h3>
-                    <p><strong id="monthly-hours">0</strong> study hours</p>
-                    <small id="monthly-minutes">0 minutes studied</small>
-                </article>
-
-                <article class="stat-card">
-                    <h3>Quiz Accuracy</h3>
-                    <p><strong id="monthly-accuracy">0%</strong></p>
-                    <small id="monthly-quiz-count">0 attempts</small>
-                </article>
-
-                <article class="stat-card">
-                    <h3>Learning Level</h3>
-                    <p>Level <strong id="analytics-level">1</strong></p>
-                    <small><span id="analytics-xp">0</span> total XP</small>
-                </article>
-
-                <article class="stat-card">
-                    <h3>Lessons Completed</h3>
-                    <p><strong id="lessons-completed">0</strong></p>
-                    <small id="lessons-total">0 total lessons</small>
-                </article>
-            </section>
-
-            <section class="analytics-charts-grid">
-                <article class="stat-card analytics-chart-card">
-                    <h3>Weekly Study Progress</h3>
-                    <p>Study minutes per day over the last seven days.</p>
-                    <div class="analytics-chart-container">
-                        <canvas id="weeklyProgressChart"></canvas>
-                    </div>
-                </article>
-
-                <article class="stat-card analytics-chart-card">
-                    <h3>Quiz Accuracy by Topic</h3>
-                    <p>Accuracy based on recorded quiz submissions.</p>
-                    <div class="analytics-chart-container">
-                        <canvas id="topicAccuracyChart"></canvas>
-                    </div>
-                </article>
-
-                <article class="stat-card analytics-chart-card">
-                    <h3>Monthly Study Time</h3>
-                    <p>Study minutes recorded this year, month by month.</p>
-                    <div class="analytics-chart-container">
-                        <canvas id="monthlyStudyChart"></canvas>
-                    </div>
-                </article>
-            </section>
-
-            <section class="analytics-topics-grid">
-                <article class="stat-card">
-                    <h3>Strong Topics</h3>
-                    <p>Your highest-accuracy attempted questions.</p>
-                    <ul id="strong-topics-list">
-                        <li>Loading topics...</li>
-                    </ul>
-                </article>
-
-                <article class="stat-card">
-                    <h3>Topics to Practise</h3>
-                    <p>Your lowest-accuracy attempted questions.</p>
-                    <ul id="weak-topics-list">
-                        <li>Loading topics...</li>
-                    </ul>
-                </article>
-            </section>
-
-            <div class="analytics-report-actions">
-                <a class="btn btn-primary" href="/analytics/monthly-report.csv">
-                    Download Monthly Report (CSV)
-                </a>
-                <button type="button" class="btn" id="refreshAnalytics">
-                    Refresh Analytics
-                </button>
-            </div>
-            </section>
-            </section>
-
-
-
-
-            <footer class="page-footer">
-                Made for curious minds · SkillTrack AI
-            </footer>
-        </main>
-
+﻿
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard | SkillTrack AI{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block subtitle %}Welcome back! Ready to learn something new?{% endblock %}
+
+{% block content %}
+
+<section class="welcome-banner">
+    <div>
+        <p class="banner-label">YOUR JOURNEY, YOUR PACE</p>
+        <h2>Build skills. Reach goals.</h2>
+        <p style="color: black;">Every lesson brings you one step closer to your goals.</p>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{% static 'js/analytics.js' %}"></script>
-    <script src="{% static 'js/dashboard.js' %}"></script>
+    <div class="banner-art" aria-hidden="true">✦</div>
+</section>
 
-</body>
+<section class="section-heading">
+    <div>
+        <h2>Your Learning Workspace</h2>
+        <p>Choose a section to continue your journey.</p>
+    </div>
+</section>
 
-</html>
+<section class="stats-grid">
+
+    <article class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon purple">▤</span>
+        </div>
+        <h3>My Learning</h3>
+        <p>Explore courses, lessons and your learning progress.</p>
+        <a class="btn btn-primary" href="{% url 'learning_page' %}">
+            Open Learning
+        </a>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon green">⌨</span>
+        </div>
+        <h3>Practice Lab</h3>
+        <p>Solve questions, check answers and improve your skills.</p>
+        <a class="btn btn-primary" href="{% url 'practice_page' %}">
+            Start Practice
+        </a>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon orange">◷</span>
+        </div>
+        <h3>Study Planner</h3>
+        <p>Organize study tasks and record study sessions.</p>
+        <a class="btn btn-primary" href="{% url 'planner_page' %}">
+            Open Planner
+        </a>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon blue">♛</span>
+        </div>
+        <h3>Achievements</h3>
+        <p>View your XP, daily missions and unlocked achievements.</p>
+        <a class="btn btn-primary" href="{% url 'achievements_page' %}">
+            View Achievements
+        </a>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon purple">▥</span>
+        </div>
+        <h3>Analytics</h3>
+        <p>Review practice accuracy and course progress.</p>
+        <a class="btn btn-primary" href="{% url 'analytics_page' %}">
+            View Analytics
+        </a>
+    </article>
+
+    <article class="stat-card">
+        <div class="stat-top">
+            <span class="stat-icon green">🤖</span>
+        </div>
+        <h3>AI Tutor</h3>
+        <p>Get help understanding concepts and learning topics.</p>
+        <a class="btn btn-primary" href="/tutor/">
+            Open AI Tutor
+        </a>
+    </article>
+
+</section>
+
+{% endblock %}

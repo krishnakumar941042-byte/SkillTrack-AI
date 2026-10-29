@@ -1,0 +1,64 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Analytics | SkillTrack AI{% endblock %}
+{% block heading %}Analytics{% endblock %}
+{% block subtitle %}Understand your learning and practice progress.{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div>
+        <p class="banner-label">YOUR PROGRESS</p>
+        <h2>Measure your growth.</h2>
+        <p style="color: black;">Review your study activity, practice results and learning milestones.</p>
+    </div>
+    <div class="banner-art" aria-hidden="true">📊</div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <p style="color: black;">Practice Attempts</p>
+        <h3 id="analytics-attempts">—</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Correct Answers</p>
+        <h3 id="analytics-correct">—</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Practice Accuracy</p>
+        <h3 id="analytics-accuracy">—</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Total XP</p>
+        <h3 id="analytics-xp">—</h3>
+    </article>
+</section>
+
+<section class="section-heading">
+    <div>
+        <h2>Practice by Difficulty</h2>
+        <p>Compare attempts and correct answers for each level.</p>
+    </div>
+</section>
+
+<section class="stat-card">
+    <p id="analytics-message" role="status">Loading analytics...</p>
+    <div id="analytics-difficulty-list"></div>
+</section>
+
+<section class="section-heading">
+    <div>
+        <h2>Learning Progress</h2>
+        <p>See your course and lesson completion.</p>
+    </div>
+</section>
+
+<section class="stat-card">
+    <div id="analytics-learning-list">Loading course progress...</div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/analytics-page.js' %}"></script>
+{% endblock %}

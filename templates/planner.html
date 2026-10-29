@@ -1,0 +1,135 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Study Planner | SkillTrack AI{% endblock %}
+{% block heading %}Study Planner{% endblock %}
+{% block subtitle %}Plan your study time and stay consistent.{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div>
+        <p class="banner-label">PLAN · FOCUS · ACHIEVE</p>
+        <h2>Make every study session count.</h2>
+        <p style="color: black;">Organise your tasks and keep track of your learning routine.</p>
+    </div>
+    <div class="banner-art" aria-hidden="true">📅</div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <p style="color: black;">Total tasks</p>
+        <h3 id="planner-total">0</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Completed tasks</p>
+        <h3 id="planner-completed">0</h3>
+    </article>
+    <article class="stat-card">
+        <p style="color: black;">Study sessions</p>
+        <h3 id="planner-sessions-count">0</h3>
+    </article>
+</section>
+
+<section class="section-heading">
+    <div>
+        <h2>Add a study task</h2>
+        <p>Choose a task, priority and optional due date.</p>
+    </div>
+</section>
+
+<section class="stat-card">
+    <form id="planner-task-form">
+        <label for="planner-task-title">Task title</label>
+        <input id="planner-task-title" type="text" maxlength="200"
+               placeholder="e.g. Revise Python functions" required>
+
+        <label for="planner-task-description">Description</label>
+        <textarea id="planner-task-description"
+                  placeholder="What do you need to study?"></textarea>
+
+        <label for="planner-task-date">Due date</label>
+        <input id="planner-task-date" type="date">
+
+        <label for="planner-task-priority">Priority</label>
+        <select id="planner-task-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+        </select>
+
+        <button class="btn btn-primary" type="submit">Add Task</button>
+    </form>
+    <p id="planner-task-message" role="status"></p>
+</section>
+
+
+<section class="section-heading planner-task-heading">
+    <div>
+        <h2>My Tasks</h2>
+        <p>Apne tasks zaroorat ke hisaab se dekho.</p>
+    </div>
+</section>
+
+<section class="planner-tasks-panel">
+    <details class="planner-task-dropdown">
+        <summary>
+            <span>📋 View My Tasks</span>
+            <span class="dropdown-arrow">⌄</span>
+        </summary>
+
+        <div class="planner-task-controls">
+            <label for="planner-task-filter">Show tasks</label>
+            <select id="planner-task-filter">
+                <option value="all">All tasks</option>
+                <option value="pending">Pending tasks</option>
+                <option value="completed">Completed tasks</option>
+            </select>
+        </div>
+
+        <div id="planner-task-list">
+            <!-- Existing planner-page.js renders tasks here -->
+        </div>
+    </details>
+</section>
+
+
+<section class="section-heading">
+    <div>
+        <h2>Log a Study Session</h2>
+        <p>Record the time you spend studying.</p>
+    </div>
+</section>
+
+<section class="stat-card">
+    <form id="planner-session-form">
+        <label for="planner-session-subject">Subject</label>
+        <input id="planner-session-subject" type="text" maxlength="100"
+               placeholder="e.g. Data Structures" required>
+
+        <label for="planner-session-duration">Duration in minutes</label>
+        <input id="planner-session-duration" type="number"
+               min="1" max="1440" value="30" required>
+
+        <label for="planner-session-notes">Notes (optional)</label>
+        <textarea id="planner-session-notes"
+                  placeholder="What did you study?"></textarea>
+
+        <button class="btn btn-primary" type="submit">Save Session</button>
+    </form>
+    <p id="planner-session-message" role="status"></p>
+</section>
+
+<section class="section-heading">
+    <div>
+        <h2>Recent Study Sessions</h2>
+    </div>
+</section>
+<section class="stat-card">
+    <div id="planner-session-list">Loading sessions...</div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/planner-page.js' %}"></script>
+{% endblock %}

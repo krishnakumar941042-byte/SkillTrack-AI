@@ -13,19 +13,43 @@ function getCookie(name) {
 
     return null;
 }
-const themeToggle = document.getElementById("theme-toggle");
 
-if (themeToggle) {
-    themeToggle.addEventListener("click", () => {
-        const isDark = document.body.classList.toggle("dark-theme");
+/* Premium theme toggle — remembers the selected theme */
 
-        themeToggle.textContent = isDark ? "☀" : "☾";
-        themeToggle.setAttribute(
-            "aria-label",
-            isDark ? "Switch to light theme" : "Switch to dark theme"
-        );
-    });
-}
+(() => {
+    const themeToggle = document.getElementById("theme-toggle");
+    const savedTheme = localStorage.getItem("skilltrack-theme");
+
+    function applyTheme(theme) {
+        const isDark = theme === "dark";
+
+        document.body.classList.toggle("dark-theme", isDark);
+
+        if (themeToggle) {
+            themeToggle.textContent = isDark ? "☀" : "☾";
+            themeToggle.setAttribute(
+                "aria-label",
+                isDark ? "Switch to light theme" : "Switch to dark theme"
+            );
+            themeToggle.setAttribute("title", isDark ? "Light mode" : "Dark mode");
+        }
+    }
+
+    applyTheme(savedTheme === "dark" ? "dark" : "light");
+
+    if (themeToggle) {
+        themeToggle.addEventListener("click", () => {
+            const nextTheme = document.body.classList.contains("dark-theme")
+                ? "light"
+                : "dark";
+
+            localStorage.setItem("skilltrack-theme", nextTheme);
+            applyTheme(nextTheme);
+        });
+    }
+})();
+
+
 
 
 const dashboardSearch = document.getElementById("dashboard-search");
@@ -36,33 +60,31 @@ if (dashboardSearch) {
 
         const query = dashboardSearch.value.trim().toLowerCase();
 
-        const sections = [
-            { name: "dashboard", id: null },
-            { name: "my learning", id: "learning" },
-            { name: "practice lab", id: "practice" },
-            { name: "study planner", id: "planner" },
-            { name: "achievements", id: "achievements" },
-            { name: "analytics", id: "analytics" }
+        const pages = [
+            { name: "dashboard", url: "/" },
+            { name: "my learning", url: "/learning/" },
+            { name: "learning", url: "/learning/" },
+            { name: "practice lab", url: "/practice/" },
+            { name: "practice", url: "/practice/" },
+            { name: "study planner", url: "/planner/" },
+            { name: "planner", url: "/planner/" },
+            { name: "achievements", url: "/achievements/" },
+            { name: "analytics", url: "/analytics/" },
+            { name: "ai tutor", url: "/tutor/" },
+            { name: "settings", url: "/settings/" }
         ];
 
-        const match = sections.find(section =>
-            section.name.includes(query)
-        );
+        if (!query) return;
+
+        const match = pages.find(page => page.name === query);
 
         if (match) {
-            if (match.id) {
-                document.getElementById(match.id)?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            } else {
-                window.scrollTo({
-                    top: 0,
-                    behavior: "smooth"
-                });
-            }
-        } else if (query) {
-            alert("Section nahi mila. Dashboard, Practice Lab, Study Planner ya Analytics search karo.");
+            window.location.href = match.url;
+        } else {
+            alert(
+                "Page nahi mila. Dashboard, Learning, Practice Lab, " +
+                "Study Planner, Achievements, Analytics ya AI Tutor search karo."
+            );
         }
     });
 }
@@ -627,6 +649,11 @@ async function loadGoalProgress() {
     const message = document.getElementById("goal-progress-message");
     const list = document.getElementById("goal-progress-list");
 
+    // Stop safely on pages without Goal Progress elements.
+    if (!message || !list) {
+        return;
+    }
+
     try {
         const response = await fetch("/api/study-goals/progress/");
         const data = await response.json();
@@ -638,9 +665,14 @@ async function loadGoalProgress() {
         list.replaceChildren();
 
         if (!data.goals || data.goals.length === 0) {
-            message.textContent = "No study goals found. Add a goal to track your progress.";
+            message.textContent =
+                "No study goals found. Add a goal to track your progress.";
             return;
         }
+
+        // Keep the rest of your existing function below this line.
+
+        // Iske neeche apna existing code bilkul waise hi rehne do.
 
         message.textContent = "Your planned vs actual study time";
 

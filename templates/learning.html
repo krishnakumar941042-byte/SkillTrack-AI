@@ -1,0 +1,36 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Learning | SkillTrack AI{% endblock %}
+{% block heading %}My Learning{% endblock %}
+{% block subtitle %}Explore courses and track your progress.{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div>
+        <p class="banner-label">YOUR LEARNING JOURNEY</p>
+        <h2>Learn something new every day.</h2>
+        <p style="color: #0b1020; font-size: 0.93rem;">Choose a course and keep moving towards your goals.</p>
+    </div>
+    <div class="banner-art" aria-hidden="true">📚</div>
+</section>
+
+<section class="section-heading">
+    <div>
+        <h2>Available Courses</h2>
+        <p>Your courses and lesson progress will appear below.</p>
+    </div>
+</section>
+
+<section id="learning">
+    <div class="stat-card">
+        <p id="learning-page-message" role="status">Loading your courses...</p>
+        <div id="learning-page-courses"></div>
+    </div>
+</section>
+{% endblock %}
+
+{% block page_scripts %}
+<script src="{% static 'js/learning-page.js' %}"></script>
+{% endblock %}
